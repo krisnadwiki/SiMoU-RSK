@@ -1,0 +1,2 @@
+PDF documents uploaded through SiMoU are stored here.
+This directory must be writable by the web server (chmod 755 or 775).

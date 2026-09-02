@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # ─── Web / App Service (PHP 8.2 + Apache) ────────────────────────────────
+  simou-app:
+    container_name: simou-rsud-kilisuci
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8083:80"
+    volumes:
+      - ./app:/var/www/html/app
+    env_file:
+      - app/.env
+    depends_on:
+      simou-db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - simou-network
+
+  # ─── Database Service (MariaDB 10.11) ────────────────────────────────────
+  simou-db:
+    container_name: simou-db-kilisuci
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: simou_db
+      MYSQL_USER: simou_user
+      MYSQL_PASSWORD: simou_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - simou-network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  simou-network:
+    driver: bridge

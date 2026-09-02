@@ -1,0 +1,13 @@
+Options -Indexes
+RewriteEngine On
+
+# 1. Block direct HTTP access to sensitive internal directories and PDF uploads
+RewriteRule ^(config|helpers|controllers|views|uploads/documents)/ - [F,L]
+
+# 2. Serve existing static assets directly (CSS, JS, images, favicon)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 3. Route all other requests through front-controller index.php
+RewriteRule ^ index.php [L]

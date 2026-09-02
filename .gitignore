@@ -1,0 +1,6 @@
+app/.env
+app/uploads/documents/*.pdf
+app/uploads/documents/*.PDF
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+.env
+app/config/
+app/helpers/
+app/controllers/
+node_modules/
+*.log
