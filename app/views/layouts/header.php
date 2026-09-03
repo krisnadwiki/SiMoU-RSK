@@ -11,6 +11,11 @@ $user      = current_user();
 $initials  = strtoupper(substr($user['name'] ?? 'A', 0, 1));
 $flash_ok  = get_flash('success');
 $flash_err = get_flash('error');
+
+// Format tanggal Bahasa Indonesia
+$_hariId  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+$_bulanId = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+$_tglNow  = $_hariId[(int)date('w')] . ', ' . date('j') . ' ' . $_bulanId[(int)date('n')] . ' ' . date('Y');
 ?>
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
@@ -153,7 +158,7 @@ $flash_err = get_flash('error');
             <!-- Title -->
             <div class="topbar-title">
                 <h4><?= e($pageTitle ?? 'Dashboard') ?></h4>
-                <p><?= date('l, d F Y') ?></p>
+                <p><?= $_tglNow ?></p>
             </div>
 
             <!-- Actions -->

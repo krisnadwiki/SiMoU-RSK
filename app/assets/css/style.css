@@ -2355,6 +2355,31 @@ textarea.form-control {
     opacity: .7;
 }
 
+/* Mobile: hanya tampilkan avatar, sembunyikan nama & caret */
+@media (max-width: 768px) {
+    .user-pill {
+        padding: 4px;
+        gap: 0;
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+    .user-pill:hover {
+        background: var(--primary-xl);
+        border-color: var(--primary-l);
+    }
+    .user-pill-name,
+    .user-pill-caret {
+        display: none;
+    }
+    .user-avatar-badge {
+        width: 34px;
+        height: 34px;
+        font-size: .85rem;
+    }
+}
+
+
 /* ── Login Page Modern Branding System ───────────────────── */
 .login-page {
     min-height: 100vh;
