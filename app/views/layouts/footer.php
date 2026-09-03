@@ -133,8 +133,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <!-- Tom Select JS -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-<!-- SiMoU JS -->
-<script src="<?= APP_URL ?>/assets/js/main.js"></script>
+<!-- SiMoU JS (with cache buster) -->
+<script src="<?= APP_URL ?>/assets/js/main.js?v=<?= APP_VERSION ?>.<?= time() ?>"></script>
 
 <script>
 /* ── Sidebar toggle (mobile) ───────────────────────────── */

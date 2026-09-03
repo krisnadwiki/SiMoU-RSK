@@ -62,8 +62,75 @@ function toggleTheme() {
 }
 
 /**
- * ── Toast Notification System ──────────────────────────────────────────────
+ * ── Toast Notification System (Contextual & Action-Representative) ──────────
  */
+function resolveToastMetadata(message, type) {
+    const lower = String(message).toLowerCase();
+    let title = 'Informasi';
+    let icon  = 'fa-circle-info';
+
+    if (type === 'success') {
+        title = 'Berhasil';
+        icon  = 'fa-circle-check';
+
+        if (lower.includes('selamat datang') || lower.includes('login')) {
+            title = 'Login Berhasil';
+            icon  = 'fa-right-to-bracket';
+        } else if (lower.includes('ditambahkan') || lower.includes('disimpan')) {
+            title = 'Data Tersimpan';
+            icon  = 'fa-floppy-disk';
+        } else if (lower.includes('diperbarui') || lower.includes('diubah')) {
+            title = 'Perubahan Disimpan';
+            icon  = 'fa-pen-to-square';
+        } else if (lower.includes('dihapus')) {
+            title = 'Data Dihapus';
+            icon  = 'fa-trash-can';
+        } else if (lower.includes('perpanjang') || lower.includes('addendum')) {
+            title = 'MoU Diperpanjang';
+            icon  = 'fa-rotate-right';
+        } else if (lower.includes('password') || lower.includes('sandi')) {
+            title = 'Keamanan Akun';
+            icon  = 'fa-key';
+        } else if (lower.includes('pulih') || lower.includes('backup') || lower.includes('restore') || lower.includes('unduh')) {
+            title = 'Database & Cadangan';
+            icon  = 'fa-database';
+        } else if (lower.includes('upload') || lower.includes('berkas') || lower.includes('dokumen')) {
+            title = 'Dokumen / Berkas';
+            icon  = 'fa-file-circle-check';
+        }
+    } else if (type === 'error') {
+        title = 'Gagal';
+        icon  = 'fa-circle-xmark';
+
+        if (lower.includes('akses') || lower.includes('ditolak') || lower.includes('terbatas')) {
+            title = 'Akses Ditolak';
+            icon  = 'fa-shield-halved';
+        } else if (lower.includes('password') || lower.includes('salah')) {
+            title = 'Autentikasi Gagal';
+            icon  = 'fa-lock';
+        } else if (lower.includes('format') || lower.includes('ukuran') || lower.includes('file') || lower.includes('pdf')) {
+            title = 'Berkas Tidak Valid';
+            icon  = 'fa-file-circle-xmark';
+        } else if (lower.includes('kunci') || lower.includes('lockout')) {
+            title = 'Akun Terkunci';
+            icon  = 'fa-user-lock';
+        }
+    } else if (type === 'warning') {
+        title = 'Perhatian';
+        icon  = 'fa-triangle-exclamation';
+
+        if (lower.includes('sesi') || lower.includes('berakhir') || lower.includes('expired')) {
+            title = 'Sesi Berakhir';
+            icon  = 'fa-clock-rotate-left';
+        } else if (lower.includes('wajib') || lower.includes('isi') || lower.includes('cocok')) {
+            title = 'Periksa Formulir';
+            icon  = 'fa-circle-exclamation';
+        }
+    }
+
+    return { title, icon };
+}
+
 function showToast(message, type = 'success', duration = 4000) {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -73,28 +140,16 @@ function showToast(message, type = 'success', duration = 4000) {
         document.body.appendChild(container);
     }
 
-    const icons = {
-        success: 'fa-circle-check',
-        error:   'fa-circle-xmark',
-        warning: 'fa-triangle-exclamation',
-        info:    'fa-circle-info'
-    };
-
-    const titles = {
-        success: 'Berhasil',
-        error:   'Gagal',
-        warning: 'Perhatian',
-        info:    'Informasi'
-    };
+    const { title, icon } = resolveToastMetadata(message, type);
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
         <div class="toast-icon-wrapper">
-            <i class="fa-solid ${icons[type] || icons.info}"></i>
+            <i class="fa-solid ${icon}"></i>
         </div>
         <div class="toast-body">
-            <div class="toast-title">${titles[type] || 'Notifikasi'}</div>
+            <div class="toast-title">${title}</div>
             <div class="toast-message">${escapeHtml(message)}</div>
         </div>
         <button class="toast-close" type="button" aria-label="Tutup notifikasi">
