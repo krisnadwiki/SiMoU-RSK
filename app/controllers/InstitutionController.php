@@ -8,27 +8,34 @@ function inst_index(array $params): void
     auth_check();
     $db = get_db();
 
-    $search  = sanitize($_GET['q'] ?? '');
-    $page    = max(1, (int) ($_GET['page'] ?? 1));
-    $perPage = 20;
-    $binds   = [];
-    $where   = '1=1';
+    $search   = sanitize($_GET['q'] ?? '');
+    $category = sanitize($_GET['category'] ?? '');
+    $page     = max(1, (int) ($_GET['page'] ?? 1));
+    $perPage  = 20;
+    $binds    = [];
+    $where    = '1=1';
 
     if ($search) {
-        $where        = "(name LIKE :q OR contact_person LIKE :q OR email LIKE :q)";
+        $where       .= " AND (i.name LIKE :q OR i.contact_person LIKE :q OR i.email LIKE :q)";
         $binds[':q']  = "%{$search}%";
     }
 
-    $total = (int) $db->prepare("SELECT COUNT(*) FROM institutions WHERE {$where}")
-                       ->execute($binds) ? (int) $db->prepare("SELECT COUNT(*) FROM institutions WHERE {$where}")->execute($binds) : 0;
+    if ($category) {
+        $where          .= " AND i.category = :cat";
+        $binds[':cat']   = $category;
+    }
 
-    $totalStmt = $db->prepare("SELECT COUNT(*) FROM institutions WHERE {$where}");
+    $totalStmt = $db->prepare("SELECT COUNT(*) FROM institutions i WHERE {$where}");
     $totalStmt->execute($binds);
     $total = (int) $totalStmt->fetchColumn();
 
-    $pag = paginate($total, $perPage, $page,
-        APP_URL . '/admin/institutions?q=' . urlencode($search) . '&page={page}'
-    );
+    $queryParams = [];
+    if ($search)   $queryParams['q'] = $search;
+    if ($category) $queryParams['category'] = $category;
+    $queryString = http_build_query($queryParams);
+    $baseUrl     = APP_URL . '/admin/institutions?' . ($queryString ? $queryString . '&' : '') . 'page={page}';
+
+    $pag = paginate($total, $perPage, $page, $baseUrl);
 
     $stmt = $db->prepare(
         "SELECT i.*, (SELECT COUNT(*) FROM mous m WHERE m.institution_id=i.id) AS mou_count
@@ -54,10 +61,28 @@ function inst_create(array $params): void
     auth_check();
     if (!verify_csrf()) { http_response_code(403); die('CSRF mismatch'); }
 
+    $validCategories = [
+        'Pendidikan',
+        'Kesehatan',
+        'Pemerintah',
+        'BUMN/BUMD',
+        'Swasta',
+        'Organisasi/Asosiasi',
+        'Keuangan',
+        'Profesional',
+        'Internasional',
+        'Lainnya'
+    ];
+
     $db   = get_db();
+    $cat  = sanitize($_POST['category'] ?? 'Pendidikan');
+    if (!in_array($cat, $validCategories, true)) {
+        $cat = 'Lainnya';
+    }
+
     $data = [
         'name'           => sanitize($_POST['name'] ?? ''),
-        'category'       => sanitize($_POST['category'] ?? 'Pendidikan'),
+        'category'       => $cat,
         'address'        => sanitize($_POST['address'] ?? ''),
         'contact_person' => sanitize($_POST['contact_person'] ?? ''),
         'phone'          => sanitize($_POST['phone'] ?? ''),
@@ -87,11 +112,29 @@ function inst_edit(array $params): void
     auth_check();
     if (!verify_csrf()) { http_response_code(403); die('CSRF mismatch'); }
 
+    $validCategories = [
+        'Pendidikan',
+        'Kesehatan',
+        'Pemerintah',
+        'BUMN/BUMD',
+        'Swasta',
+        'Organisasi/Asosiasi',
+        'Keuangan',
+        'Profesional',
+        'Internasional',
+        'Lainnya'
+    ];
+
     $db   = get_db();
     $id   = (int) ($params['id'] ?? 0);
+    $cat  = sanitize($_POST['category'] ?? 'Pendidikan');
+    if (!in_array($cat, $validCategories, true)) {
+        $cat = 'Lainnya';
+    }
+
     $data = [
         'name'           => sanitize($_POST['name'] ?? ''),
-        'category'       => sanitize($_POST['category'] ?? ''),
+        'category'       => $cat,
         'address'        => sanitize($_POST['address'] ?? ''),
         'contact_person' => sanitize($_POST['contact_person'] ?? ''),
         'phone'          => sanitize($_POST['phone'] ?? ''),

@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `institutions` (
     `id`             INT          NOT NULL AUTO_INCREMENT,
     `name`           VARCHAR(150) NOT NULL,
     `category`       VARCHAR(80)  NOT NULL DEFAULT 'Pendidikan'
-                     COMMENT 'Pendidikan|Kedinasan|Swasta|BUMN|Lainnya',
+                     COMMENT 'Pendidikan|Kesehatan|Pemerintah|BUMN/BUMD|Swasta|Organisasi/Asosiasi|Keuangan|Profesional|Internasional|Lainnya',
     `address`        TEXT,
     `contact_person` VARCHAR(100),
     `phone`          VARCHAR(30),

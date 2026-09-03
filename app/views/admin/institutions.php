@@ -5,7 +5,31 @@
 
 require __DIR__ . '/../layouts/header.php';
 
-$catOptions = ['Pendidikan', 'Kedinasan', 'Swasta', 'BUMN', 'Lainnya'];
+$catOptions = [
+    'Pendidikan',
+    'Kesehatan',
+    'Pemerintah',
+    'BUMN/BUMD',
+    'Swasta',
+    'Organisasi/Asosiasi',
+    'Keuangan',
+    'Profesional',
+    'Internasional',
+    'Lainnya'
+];
+
+$catBadges = [
+    'Pendidikan'          => 'badge-primary',
+    'Kesehatan'           => 'badge-success',
+    'Pemerintah'          => 'badge-info',
+    'BUMN/BUMD'           => 'badge-warning',
+    'Swasta'              => 'badge-accent',
+    'Organisasi/Asosiasi' => 'badge-expiring',
+    'Keuangan'            => 'badge-success',
+    'Profesional'         => 'badge-primary',
+    'Internasional'       => 'badge-moa',
+    'Lainnya'             => 'badge-outline',
+];
 ?>
 
 <div class="page-body">
@@ -16,21 +40,27 @@ $catOptions = ['Pendidikan', 'Kedinasan', 'Swasta', 'BUMN', 'Lainnya'];
                 <i class="fa-solid fa-building" style="color:var(--primary);"></i>
                 Institusi &amp; Mitra Kerjasama
             </h3>
-            <p class="text-muted fs-sm">Total <?= count($institutions) ?> institusi terdaftar</p>
+            <p class="text-muted fs-sm">Total <?= $total ?? count($institutions) ?> institusi terdaftar</p>
         </div>
         <button class="btn btn-primary btn-sm" onclick="openModal('modalCreate')">
             <i class="fa-solid fa-plus"></i> Tambah Institusi
         </button>
     </div>
 
-    <!-- Search bar -->
+    <!-- Search & Filter bar -->
     <form method="GET" action="<?= APP_URL ?>/admin/institutions" class="filter-bar mb-3">
         <div class="search-box flex-1">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="q" placeholder="Cari nama, kontak, atau email…"
                    value="<?= e($search ?? '') ?>">
         </div>
-        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-filter"></i> Cari</button>
+        <select name="category" class="form-control" style="max-width:210px;" onchange="this.form.submit()">
+            <option value="">-- Semua Kategori --</option>
+            <?php foreach ($catOptions as $c): ?>
+            <option value="<?= $c ?>" <?= ($category ?? '') === $c ? 'selected' : '' ?>><?= $c ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-filter"></i> Filter</button>
         <a href="<?= APP_URL ?>/admin/institutions" class="btn btn-outline btn-sm">Reset</a>
     </form>
 
@@ -48,9 +78,11 @@ $catOptions = ['Pendidikan', 'Kedinasan', 'Swasta', 'BUMN', 'Lainnya'];
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($institutions as $i => $inst): ?>
+            <?php foreach ($institutions as $i => $inst): 
+                $badgeClass = $catBadges[$inst['category']] ?? 'badge-primary';
+            ?>
                 <tr>
-                    <td style="color:var(--text-subtle); font-size:.78rem;"><?= $i + 1 ?></td>
+                    <td style="color:var(--text-subtle); font-size:.78rem;"><?= ($pag['offset'] ?? 0) + $i + 1 ?></td>
                     <td>
                         <div style="font-weight:600; color:var(--text-main);"><?= e($inst['name']) ?></div>
                         <?php if ($inst['address']): ?>
@@ -59,7 +91,7 @@ $catOptions = ['Pendidikan', 'Kedinasan', 'Swasta', 'BUMN', 'Lainnya'];
                         </div>
                         <?php endif; ?>
                     </td>
-                    <td><span class="badge badge-primary" style="font-size:.65rem;"><?= e($inst['category']) ?></span></td>
+                    <td><span class="badge <?= $badgeClass ?>" style="font-size:.68rem; font-weight:600;"><?= e($inst['category']) ?></span></td>
                     <td><?= e($inst['contact_person'] ?: '-') ?></td>
                     <td>
                         <?php if ($inst['email']): ?>
