@@ -33,15 +33,15 @@ unset($_SESSION['_login_error']);
         <div class="login-left">
             <div class="login-brand">
                 <div class="login-brand-logo">
-                    <img src="<?= APP_URL ?>/assets/image/logo.png" alt="SiMoU Logo" style="height:48px; width:auto; border-radius:8px;">
+                    <img src="<?= APP_URL ?>/assets/image/logo.png" alt="SiMoU Logo" class="login-logo-img">
                     <div class="login-brand-text">
                         <div class="app-name">SiMoU</div>
                         <div class="app-sub">RSUD Kilisuci</div>
                     </div>
                 </div>
 
-                <h2>Sistem Informasi<br>MoU &amp; MoA<br>RSUD Kilisuci</h2>
-                <p>
+                <h2 class="login-left-title">Sistem Informasi<br>MoU &amp; MoA<br>RSUD Kilisuci</h2>
+                <p class="login-left-desc">
                     Platform terpadu untuk manajemen dokumen Memorandum of Understanding
                     dan Memorandum of Agreement RSUD Kilisuci Kota Kediri.
                 </p>
@@ -66,8 +66,8 @@ unset($_SESSION['_login_error']);
                 </div>
             </div>
 
-            <div style="position:relative;z-index:1;margin-top:24px;">
-                <div style="font-size:.65rem; color:rgba(255,255,255,.4);">
+            <div class="login-left-footer">
+                <div class="login-version-text">
                     <?= e(APP_NAME) ?> v<?= e(APP_VERSION) ?>
                 </div>
             </div>
