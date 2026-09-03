@@ -7,10 +7,13 @@
  *   $activeMenu string  - key of active sidebar item
  */
 
-$user      = current_user();
-$initials  = strtoupper(substr($user['name'] ?? 'A', 0, 1));
-$flash_ok  = get_flash('success');
-$flash_err = get_flash('error');
+$user        = current_user();
+$initials    = strtoupper(substr($user['name'] ?? 'A', 0, 1));
+$flashToasts = [];
+if ($f = get_flash('success')) $flashToasts[] = ['message' => $f, 'type' => 'success'];
+if ($f = get_flash('error'))   $flashToasts[] = ['message' => $f, 'type' => 'error'];
+if ($f = get_flash('warning')) $flashToasts[] = ['message' => $f, 'type' => 'warning'];
+if ($f = get_flash('info'))    $flashToasts[] = ['message' => $f, 'type' => 'info'];
 
 // Format tanggal Bahasa Indonesia
 $_hariId  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -232,21 +235,18 @@ $_tglNow  = $_hariId[(int)date('w')] . ', ' . date('j') . ' ' . $_bulanId[(int)d
             </div>
         </header>
 
-        <!-- Flash Messages -->
-        <?php if ($flash_ok): ?>
-        <div style="padding: 16px 28px 0;">
-            <div class="alert alert-success">
-                <i class="fa-solid fa-circle-check"></i>
-                <span><?= e($flash_ok) ?></span>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <?php if ($flash_err): ?>
-        <div style="padding: 16px 28px 0;">
-            <div class="alert alert-danger">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <span><?= e($flash_err) ?></span>
-            </div>
-        </div>
+        <!-- Flash Messages via Toast Notifications -->
+        <?php if (!empty($flashToasts)): ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = <?= json_encode($flashToasts) ?>;
+            toasts.forEach((t, index) => {
+                setTimeout(() => {
+                    if (typeof showToast === 'function') {
+                        showToast(t.message, t.type);
+                    }
+                }, index * 250);
+            });
+        });
+        </script>
         <?php endif; ?>

@@ -65,8 +65,13 @@ function toggleTheme() {
  * ── Toast Notification System ──────────────────────────────────────────────
  */
 function showToast(message, type = 'success', duration = 4000) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
 
     const icons = {
         success: 'fa-circle-check',
@@ -75,20 +80,56 @@ function showToast(message, type = 'success', duration = 4000) {
         info:    'fa-circle-info'
     };
 
+    const titles = {
+        success: 'Berhasil',
+        error:   'Gagal',
+        warning: 'Perhatian',
+        info:    'Informasi'
+    };
+
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
-        <i class="fa-solid ${icons[type] || icons.info} toast-icon"></i>
-        <div class="toast-content">${escapeHtml(message)}</div>
-        <button class="toast-close" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="toast-icon-wrapper">
+            <i class="fa-solid ${icons[type] || icons.info}"></i>
+        </div>
+        <div class="toast-body">
+            <div class="toast-title">${titles[type] || 'Notifikasi'}</div>
+            <div class="toast-message">${escapeHtml(message)}</div>
+        </div>
+        <button class="toast-close" type="button" aria-label="Tutup notifikasi">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="toast-progress" style="animation-duration: ${duration}ms;"></div>
     `;
+
+    const closeBtn = toast.querySelector('.toast-close');
+    let timer;
+
+    const dismissToast = () => {
+        clearTimeout(timer);
+        toast.style.animation = 'toastFadeOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards';
+        setTimeout(() => toast.remove(), 300);
+    };
+
+    closeBtn.addEventListener('click', dismissToast);
 
     container.appendChild(toast);
 
-    setTimeout(() => {
-        toast.style.animation = 'toastFadeOut 0.4s forwards';
-        setTimeout(() => toast.remove(), 400);
-    }, duration);
+    timer = setTimeout(dismissToast, duration);
+
+    // Pause countdown timer on hover
+    toast.addEventListener('mouseenter', () => {
+        clearTimeout(timer);
+        const bar = toast.querySelector('.toast-progress');
+        if (bar) bar.style.animationPlayState = 'paused';
+    });
+
+    toast.addEventListener('mouseleave', () => {
+        const bar = toast.querySelector('.toast-progress');
+        if (bar) bar.style.animationPlayState = 'running';
+        timer = setTimeout(dismissToast, 2000);
+    });
 }
 
 /**

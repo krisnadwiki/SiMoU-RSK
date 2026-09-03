@@ -166,6 +166,9 @@ unset($_SESSION['_login_error']);
     </div><!-- /.login-card -->
 </div><!-- /.login-page -->
 
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="<?= APP_URL ?>/assets/js/main.js?v=<?= APP_VERSION ?>.<?= time() ?>"></script>
 <script>
 // Password toggle
 document.getElementById('togglePwd')?.addEventListener('click', function() {
@@ -186,7 +189,7 @@ function handleLoginSubmit(form) {
     const pwd = document.getElementById('password').value;
 
     if (!id || !pwd) {
-        alert('Username/email dan password wajib diisi.');
+        showToast('Username/email dan password wajib diisi.', 'warning');
         return false;
     }
 
@@ -200,6 +203,18 @@ function handleLoginSubmit(form) {
     text.textContent      = 'Memproses...';
     return true;
 }
+
+<?php if ($loginError): ?>
+document.addEventListener('DOMContentLoaded', () => {
+    showToast(<?= json_encode($loginError) ?>, 'error', 5000);
+});
+<?php endif; ?>
+
+<?php if ($expired ?? false): ?>
+document.addEventListener('DOMContentLoaded', () => {
+    showToast('Sesi Anda telah berakhir. Silakan masuk kembali.', 'warning', 5000);
+});
+<?php endif; ?>
 
 <?php if (($lockoutRemaining ?? 0) > 0): ?>
 // Lockout countdown

@@ -15,19 +15,6 @@ require __DIR__ . '/../layouts/header.php';
         </div>
     </div>
 
-    <?php if (has_flash('success')): ?>
-    <div class="alert alert-success d-flex align-center gap-2 mb-3">
-        <i class="fa-solid fa-circle-check"></i>
-        <div><?= flash('success') ?></div>
-    </div>
-    <?php endif; ?>
-
-    <?php if (has_flash('error')): ?>
-    <div class="alert alert-danger d-flex align-center gap-2 mb-3">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <div><?= flash('error') ?></div>
-    </div>
-    <?php endif; ?>
 
     <!-- Summary Stat Cards -->
     <div class="stats-grid mb-4">
