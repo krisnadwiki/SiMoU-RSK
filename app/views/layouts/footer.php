@@ -161,8 +161,12 @@ function closeModal(id) {
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function(e) {
         if (e.target === this) {
-            this.classList.remove('open');
-            document.body.style.overflow = '';
+            if (this.id === 'pdfViewerModal') {
+                closePdfModal();
+            } else {
+                this.classList.remove('open');
+                document.body.style.overflow = '';
+            }
         }
     });
 });
@@ -224,6 +228,36 @@ function confirmLogout(e) {
     openModal('logoutConfirmModal');
 }
 
+/* ── PDF Viewer Modal ──────────────────────────────────── */
+function openPdfModal(viewUrl, downloadUrl, title) {
+    const modal   = document.getElementById('pdfViewerModal');
+    const dlBtn   = document.getElementById('pdfDownloadBtn');
+    const titleEl = document.getElementById('pdfModalTitleText');
+    const frame   = document.getElementById('pdfViewerFrame');
+
+    if (!modal) return;
+
+    if (titleEl) titleEl.textContent = title || 'Dokumen PDF';
+    if (dlBtn)   dlBtn.href = downloadUrl;
+
+    // Build viewer URL: same-origin PDF.js viewer with file param
+    const viewerBase = window._APP_URL + '/assets/pdfjs/web/viewer.html';
+    const viewerUrl  = viewerBase + '?file=' + encodeURIComponent(viewUrl)
+                     + '&download=' + encodeURIComponent(downloadUrl);
+
+    if (frame) frame.src = viewerUrl;
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePdfModal() {
+    const modal = document.getElementById('pdfViewerModal');
+    const frame = document.getElementById('pdfViewerFrame');
+    if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    setTimeout(() => { if (frame) frame.src = 'about:blank'; }, 300);
+}
+
 /* ── Auto-dismiss Flash Alerts ────────────────────────── */
 setTimeout(() => {
     document.querySelectorAll('.alert').forEach(a => {
@@ -250,6 +284,39 @@ document.addEventListener('DOMContentLoaded', () => {
 <?php if (isset($extraScript)): ?>
 <script><?= $extraScript ?></script>
 <?php endif; ?>
+
+<!-- PDF Viewer Modal (PDF.js full viewer — scroll, zoom, search) -->
+<div class="modal-overlay" id="pdfViewerModal">
+    <div class="pdf-modal-shell">
+        <!-- Minimal header: judul + tombol tutup + unduh fallback -->
+        <div class="pdf-modal-header">
+            <div class="pdf-modal-title">
+                <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i>
+                <span id="pdfModalTitleText">Dokumen PDF</span>
+            </div>
+            <div class="pdf-modal-actions">
+                <a id="pdfDownloadBtn" href="#" class="btn btn-primary btn-sm" download>
+                    <i class="fa-solid fa-download"></i>
+                    <span class="pdf-btn-label"> Unduh</span>
+                </a>
+                <button type="button" class="btn btn-outline btn-sm" onclick="closePdfModal()" aria-label="Tutup">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span class="pdf-btn-label"> Tutup</span>
+                </button>
+            </div>
+        </div>
+        <!-- PDF.js viewer via same-origin iframe -->
+        <div class="pdf-modal-body">
+            <iframe id="pdfViewerFrame"
+                    src="about:blank"
+                    title="PDF Viewer"
+                    class="pdf-modal-frame"
+                    allow="fullscreen"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads">
+            </iframe>
+        </div>
+    </div>
+</div>
 
 <!-- PWA: Service Worker Registration -->
 <script>

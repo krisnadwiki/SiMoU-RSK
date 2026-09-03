@@ -94,7 +94,8 @@ require __DIR__ . '/../../layouts/header.php';
                     </div>
                     <?php if (!empty($renewal['document_path'])): ?>
                     <div style="margin-top:8px;">
-                        <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $renewal['id'] ?>/document" target="_blank"
+                        <a href="javascript:void(0)"
+                           onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $renewal['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $renewal['id'] ?>/document?download=1','Addendum — <?= e(addslashes($renewal['renewal_number'])) ?>')"
                            class="btn btn-outline btn-sm" style="font-size:.75rem; color:var(--primary);">
                             <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat Berkas PDF yang Tersimpan Saat Ini
                         </a>

@@ -104,8 +104,9 @@ function pag_link(array $pag, int $targetPage): string
 
                             <!-- Berkas PDF di Kolom Judul -->
                             <?php if (!empty($m['file_path'])): ?>
-                            <a href="<?= APP_URL ?>/admin/mou/<?= $m['id'] ?>/document" target="_blank"
-                               class="badge" style="background:var(--danger-l); color:var(--danger); border:1px solid rgba(220,38,38,.2); text-decoration:none;" title="Buka Berkas PDF Dokumen Utama">
+                            <a href="javascript:void(0)"
+                               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $m['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $m['id'] ?>/document?download=1','<?= e(addslashes(mb_strimwidth($m['title'],0,50,'...'))) ?>')"
+                               class="badge" style="background:var(--danger-l); color:var(--danger); border:1px solid rgba(220,38,38,.2); text-decoration:none; cursor:pointer;" title="Buka Berkas PDF Dokumen Utama">
                                 <i class="fa-solid fa-file-pdf"></i> PDF Dokumen
                             </a>
                             <?php else: ?>

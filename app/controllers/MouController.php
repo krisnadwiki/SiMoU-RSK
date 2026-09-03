@@ -153,8 +153,10 @@ function mou_download_document(array $params): void
 
     $filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $mou['mou_number']) . '.pdf';
 
+    $forceDownload = isset($_GET['download']);
+
     header('Content-Type: application/pdf');
-    header('Content-Disposition: inline; filename="' . $filename . '"');
+    header('Content-Disposition: ' . ($forceDownload ? 'attachment' : 'inline') . '; filename="' . $filename . '"');
     header('Content-Length: ' . filesize($fullPath));
     header('Cache-Control: private, max-age=3600, must-revalidate');
 
@@ -194,8 +196,10 @@ function mou_download_addendum(array $params): void
 
     $filename = 'Addendum_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $renewal['renewal_number']) . '.pdf';
 
+    $forceDownload = isset($_GET['download']);
+
     header('Content-Type: application/pdf');
-    header('Content-Disposition: inline; filename="' . $filename . '"');
+    header('Content-Disposition: ' . ($forceDownload ? 'attachment' : 'inline') . '; filename="' . $filename . '"');
     header('Content-Length: ' . filesize($fullPath));
     header('Cache-Control: private, max-age=3600, must-revalidate');
 

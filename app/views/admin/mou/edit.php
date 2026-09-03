@@ -63,7 +63,8 @@ require __DIR__ . '/../../layouts/header.php';
                 <i class="fa-solid fa-rotate-right"></i> Perbarui / Adendum
             </a>
             <?php if ($mou['file_path']): ?>
-            <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document" target="_blank"
+            <a href="javascript:void(0)"
+               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','PDF Utama — <?= e(addslashes($mou['mou_number'])) ?>')"
                class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" title="Lihat Berkas PDF Dokumen Utama">
                 <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF Utama
             </a>
@@ -273,7 +274,8 @@ require __DIR__ . '/../../layouts/header.php';
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </a>
                                     <?php if (!empty($r['document_path'])): ?>
-                                    <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document" target="_blank"
+                                    <a href="javascript:void(0)"
+                                       onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document?download=1','Addendum — <?= e(addslashes($r['renewal_number'])) ?>')"
                                        class="btn btn-outline btn-sm" style="font-size:.72rem; padding:3px 8px; color:var(--primary);">
                                         <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF
                                     </a>
