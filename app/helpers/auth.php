@@ -36,11 +36,11 @@ function attempt_login(string $identifier, string $password): array
         return ['success' => false, 'message' => 'Username/email dan password wajib diisi.'];
     }
 
-    // 3. Query user from DB
+    // 3. Query user strictly from database with distinct parameters
     $user = null;
     $db   = get_db();
 
-    // Ensure users table & is_active column exist
+    // Ensure is_active column exists
     try {
         $cols = $db->query("SHOW COLUMNS FROM users LIKE 'is_active'")->fetchAll();
         if (empty($cols)) {
@@ -52,43 +52,19 @@ function attempt_login(string $identifier, string $password): array
     $stmt = $db->prepare(
         "SELECT id, username, password, name, email, role, COALESCE(is_active, 1) AS is_active
          FROM users
-         WHERE username = :id OR email = :id
+         WHERE username = :uname OR email = :uemail
          LIMIT 1"
     );
-    $stmt->execute([':id' => $identifier]);
+    $stmt->execute([
+        ':uname'  => $identifier,
+        ':uemail' => $identifier,
+    ]);
     $user = $stmt->fetch();
 
-    // If 'admin' user does not exist in DB, and user enters default credentials 'admin' + 'password' / 'password123'
-    if (!$user && ($identifier === 'admin' || $identifier === 'admin@rsudkilisuci.kedirikota.go.id') && ($password === 'password' || $password === 'password123')) {
-        try {
-            $defaultHash = password_hash($password, PASSWORD_BCRYPT);
-            $db->prepare(
-                "INSERT INTO users (username, password, name, email, role, is_active)
-                 VALUES ('admin', :p, 'Administrator RSUD Kilisuci', 'admin@rsudkilisuci.kedirikota.go.id', 'superadmin', 1)
-                 ON DUPLICATE KEY UPDATE password = :p2, is_active = 1"
-            )->execute([':p' => $defaultHash, ':p2' => $defaultHash]);
-
-            $stmt->execute([':id' => $identifier]);
-            $user = $stmt->fetch();
-        } catch (Throwable $e) {
-            error_log('[SiMoU] Auto-create admin error: ' . $e->getMessage());
-        }
-    }
-
-    // 4. Verify password
+    // 4. Verify password strictly against database hash
     $validPassword = false;
-
-    if ($user && !empty($user['password'])) {
-        if (password_verify($password, $user['password'])) {
-            $validPassword = true;
-        } elseif ($user['username'] === 'admin' && ($password === 'password' || $password === 'password123')) {
-            // Default initial admin password alias support
-            $validPassword = true;
-            try {
-                $newHash = password_hash($password, PASSWORD_BCRYPT);
-                $db->prepare("UPDATE users SET password = :p WHERE id = :id")->execute([':p' => $newHash, ':id' => $user['id']]);
-            } catch (Throwable $e) {}
-        }
+    if ($user && !empty($user['password']) && password_verify($password, $user['password'])) {
+        $validPassword = true;
     }
 
     if (!$user || !$validPassword) {
