@@ -33,8 +33,42 @@ $_tglNow  = $_hariId[(int)date('w')] . ', ' . date('j') . ' ' . $_bulanId[(int)d
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Tom Select (Searchable Dropdowns) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css">
-    <!-- SiMoU CSS -->
-    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+    <!-- SiMoU CSS (with cache-buster query) -->
+    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css?v=<?= APP_VERSION ?>.<?= time() ?>">
+
+    <style>
+    /* Override tegas: Sembunyikan nama user di navbar mode mobile */
+    @media (max-width: 768px) {
+        .user-pill-name, #userPillName {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .user-pill-caret, #userPillCaret {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .user-pill, #userDropdown {
+            padding: 4px !important;
+            gap: 0 !important;
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            border-radius: 50% !important;
+        }
+        .user-avatar-badge {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: .85rem !important;
+        }
+    }
+    </style>
+
 
     <script>
     (function() {
@@ -172,8 +206,8 @@ $_tglNow  = $_hariId[(int)date('w')] . ', ' . date('j') . ' ' . $_bulanId[(int)d
                 <div class="profile-dropdown-wrapper">
                     <button class="user-pill" onclick="toggleProfileDropdown(event)" aria-haspopup="true" id="userDropdown">
                         <span class="user-avatar-badge"><?= e($initials) ?></span>
-                        <span class="user-pill-name"><?= e($user['name'] ?? 'Admin') ?></span>
-                        <i class="fa-solid fa-chevron-down user-pill-caret"></i>
+                        <span class="user-pill-name" id="userPillName"><?= e($user['name'] ?? 'Admin') ?></span>
+                        <i class="fa-solid fa-chevron-down user-pill-caret" id="userPillCaret"></i>
                     </button>
 
                     <div class="profile-dropdown-menu" id="profileDropdownMenu">

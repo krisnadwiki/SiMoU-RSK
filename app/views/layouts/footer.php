@@ -1,10 +1,15 @@
         <!-- Application Footer (Sticky Copyright Bar) -->
         <footer class="app-footer">
-            <span class="footer-copyright">
-                <strong>SiMoU</strong>
-                <span class="footer-sep">&middot;</span>
-                &copy; <?= date('Y') ?> ICT RSUD Kilisuci Kota Kediri
-            </span>
+            <div class="app-footer-inner">
+                <span class="footer-copyright">
+                    <strong>SiMoU</strong>
+                    <span class="footer-sep">&middot;</span>
+                    &copy; <?= date('Y') ?> ICT RSUD Kilisuci Kota Kediri
+                </span>
+                <span class="footer-version">
+                    v<?= e(APP_VERSION) ?>
+                </span>
+            </div>
         </footer>
 
 
