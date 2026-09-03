@@ -40,6 +40,9 @@ $routes = [
     ['POST', '/admin/mou/{id}/delete',  'controllers/MouController.php',         'mou_delete'],
     ['GET',  '/admin/mou/{id}/renew',   'controllers/MouController.php',         'mou_renew_form'],
     ['POST', '/admin/mou/{id}/renew',   'controllers/MouController.php',         'mou_renew_post'],
+    ['GET',  '/admin/mou/{id}/renew/{renewal_id}/edit',   'controllers/MouController.php', 'mou_renew_edit_form'],
+    ['POST', '/admin/mou/{id}/renew/{renewal_id}/edit',  'controllers/MouController.php', 'mou_renew_edit_post'],
+    ['POST', '/admin/mou/{id}/renew/{renewal_id}/delete','controllers/MouController.php', 'mou_renew_delete'],
     ['GET',  '/admin/mou/{id}/document','controllers/MouController.php',         'mou_download_document'],
     ['GET',  '/admin/mou/{id}/addendum/{renewal_id}/document', 'controllers/MouController.php', 'mou_download_addendum'],
 

@@ -2604,11 +2604,6 @@ textarea.form-control {
     margin-top: 4px;
     font-weight: 500;
 }
-    gap: 8px;
-    font-size: .72rem;
-    color: var(--text-subtle);
-    line-height: 1.5;
-}
 
 /* ── Sidebar Toggle Hamburger Button ─────────────────────── */
 .sidebar-toggle {
@@ -3018,3 +3013,206 @@ textarea.form-control {
         font-size: .75rem;
     }
 }
+
+/* ── MoU Detail & Edit Responsive Layout ──────────────────── */
+.mou-summary-strip {
+    background: var(--grad-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    align-items: center;
+}
+
+.mou-summary-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    align-items: stretch;
+    min-width: 180px;
+}
+
+.mou-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+    align-items: start;
+}
+
+.public-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ── Renewal History Card & Accordion ─────────────────────── */
+.history-card {
+    transition: box-shadow var(--transition);
+}
+
+.history-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.history-toggle-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.history-toggle-btn:hover {
+    background: var(--primary-l);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.history-toggle-icon {
+    transition: transform 0.25s ease;
+}
+
+/* Timeline scrollable container */
+.timeline-scrollable {
+    max-height: 440px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.timeline-scrollable::-webkit-scrollbar {
+    width: 5px;
+}
+
+.timeline-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.timeline-scrollable::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.timeline-scrollable::-webkit-scrollbar-thumb:hover {
+    background: var(--text-subtle);
+}
+
+/* ── Responsive Behavior (Tablet & Mobile ≤ 900px) ────────── */
+@media (max-width: 900px) {
+    .mou-detail-layout,
+    .public-detail-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .history-card-header {
+        cursor: pointer;
+        user-select: none;
+        padding: 14px 16px;
+        -webkit-tap-highlight-color: transparent;
+        transition: background var(--transition);
+    }
+    
+    .history-card-header:hover {
+        background: var(--bg-surface-2);
+    }
+    
+    .history-toggle-btn {
+        display: inline-flex;
+    }
+
+    /* Collapsed state on mobile: hides the body and leaves header as clean strip */
+    .history-card.is-collapsed .history-card-body {
+        display: none !important;
+    }
+
+    /* Chevron rotation when open */
+    .history-card:not(.is-collapsed) .history-toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Mobile: no height cap — accordion expands to full content height */
+    .timeline-scrollable {
+        max-height: none;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: auto;
+    }
+
+    /* Compact timeline on mobile */
+    .timeline {
+        padding-left: 18px;
+    }
+    
+    .timeline::before {
+        left: 5px;
+    }
+
+    .timeline-item {
+        margin-bottom: 12px;
+    }
+
+    .timeline-item::before {
+        left: -17px;
+        top: 4px;
+        width: 8px;
+        height: 8px;
+    }
+
+    .timeline-date {
+        font-size: .65rem;
+        margin-bottom: 3px;
+    }
+
+    .timeline-body {
+        padding: 9px 12px;
+        font-size: .78rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .mou-summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 14px 16px;
+    }
+    
+    .mou-summary-actions {
+        grid-column: 1 / -1;
+        min-width: 0;
+        flex-direction: row;
+        gap: 8px;
+        margin-top: 4px;
+    }
+    
+    .mou-summary-actions .btn {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .mou-summary-actions {
+        flex-direction: column;
+    }
+}
+

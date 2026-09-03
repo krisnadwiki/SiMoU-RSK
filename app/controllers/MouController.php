@@ -96,7 +96,10 @@ function mou_index(array $params): void
 
     $stmt = $db->prepare(
         "SELECT m.*, i.name AS institution_name, c.name AS category_name,
-                u.name AS unit_name
+                u.name AS unit_name,
+                (SELECT COUNT(*) FROM mou_renewals WHERE mou_id = m.id) AS renewal_count,
+                (SELECT renewal_number FROM mou_renewals WHERE mou_id = m.id ORDER BY created_at DESC LIMIT 1) AS latest_renewal_number,
+                (SELECT new_end_date FROM mou_renewals WHERE mou_id = m.id ORDER BY created_at DESC LIMIT 1) AS latest_renewal_end_date
          FROM mous m
          JOIN institutions i ON i.id = m.institution_id
          JOIN categories   c ON c.id = m.category_id
@@ -585,6 +588,169 @@ function mou_renew_post(array $params): void
 
     log_activity('RENEW_MOU', "Perpanjang MoU #{$id}: {$mou['mou_number']} s/d {$newEnd}");
     flash('success', "MoU berhasil diperpanjang hingga " . format_date_id($newEnd) . ".");
+    header('Location: ' . APP_URL . '/admin/mou/' . $id . '/edit');
+    exit;
+}
+
+function mou_renew_edit_form(array $params): void
+{
+    auth_check();
+    $db  = get_db();
+    $id  = sanitize($params['id'] ?? '');
+    $rid = (int) ($params['renewal_id'] ?? 0);
+
+    if (!_is_valid_uuid($id) || $rid <= 0) {
+        http_response_code(404);
+        require __DIR__ . '/../views/errors/404.php';
+        exit;
+    }
+
+    $stmt = $db->prepare("SELECT m.*, i.name AS institution_name FROM mous m JOIN institutions i ON i.id=m.institution_id WHERE m.id=:id");
+    $stmt->execute([':id' => $id]);
+    $mou = $stmt->fetch();
+    if (!$mou) { http_response_code(404); require __DIR__ . '/../views/errors/404.php'; exit; }
+
+    $rStmt = $db->prepare("SELECT * FROM mou_renewals WHERE id=:rid AND mou_id=:id");
+    $rStmt->execute([':rid' => $rid, ':id' => $id]);
+    $renewal = $rStmt->fetch();
+    if (!$renewal) { http_response_code(404); require __DIR__ . '/../views/errors/404.php'; exit; }
+
+    $errors = $_SESSION['_form_errors'] ?? [];
+    $old    = $_SESSION['_form_old']    ?? $renewal;
+    unset($_SESSION['_form_errors'], $_SESSION['_form_old']);
+
+    $pageTitle  = 'Edit Adendum / Perpanjangan';
+    $activeMenu = 'mou';
+    require __DIR__ . '/../views/admin/mou/renew_edit.php';
+}
+
+function mou_renew_edit_post(array $params): void
+{
+    auth_check();
+    if (!verify_csrf()) { http_response_code(403); die('CSRF mismatch'); }
+
+    $db  = get_db();
+    $id  = sanitize($params['id'] ?? '');
+    $rid = (int) ($params['renewal_id'] ?? 0);
+
+    if (!_is_valid_uuid($id) || $rid <= 0) { http_response_code(404); exit; }
+
+    $stmt = $db->prepare("SELECT * FROM mous WHERE id=:id");
+    $stmt->execute([':id' => $id]);
+    $mou = $stmt->fetch();
+    if (!$mou) { http_response_code(404); exit; }
+
+    $rStmt = $db->prepare("SELECT * FROM mou_renewals WHERE id=:rid AND mou_id=:id");
+    $rStmt->execute([':rid' => $rid, ':id' => $id]);
+    $renewal = $rStmt->fetch();
+    if (!$renewal) { http_response_code(404); exit; }
+
+    $renewNumber = sanitize($_POST['renewal_number'] ?? '');
+    $newStart    = sanitize($_POST['new_start_date'] ?? '');
+    $newEnd      = sanitize($_POST['new_end_date'] ?? '');
+    $notes       = sanitize($_POST['notes'] ?? '');
+
+    $errors = [];
+    if (!$renewNumber) $errors[] = 'Nomor addendum / perpanjangan wajib diisi.';
+    if (!$newStart)    $errors[] = 'Tanggal mulai baru wajib diisi.';
+    if (!$newEnd)      $errors[] = 'Tanggal berakhir baru wajib diisi.';
+    if ($newEnd <= $newStart) $errors[] = 'Tanggal berakhir harus setelah tanggal mulai.';
+
+    $docPath = $renewal['document_path'];
+    if (!empty($_FILES['document']['name'])) {
+        $upload = handle_document_upload($_FILES['document'], 'renewal_' . substr($id, 0, 8));
+        if (!$upload['success']) {
+            $errors[] = $upload['error'];
+        } else {
+            delete_upload($renewal['document_path']);
+            $docPath = $upload['path'];
+        }
+    }
+
+    if ($errors) {
+        $_SESSION['_form_errors'] = $errors;
+        $_SESSION['_form_old']    = [
+            'renewal_number' => $renewNumber,
+            'new_start_date' => $newStart,
+            'new_end_date'   => $newEnd,
+            'notes'          => $notes,
+        ];
+        header('Location: ' . APP_URL . '/admin/mou/' . $id . '/renew/' . $rid . '/edit');
+        exit;
+    }
+
+    // Update renewal record
+    $upd = $db->prepare(
+        "UPDATE mou_renewals SET
+            renewal_number=:renewal_number,
+            new_start_date=:new_start_date,
+            new_end_date=:new_end_date,
+            document_path=:document_path,
+            notes=:notes
+         WHERE id=:rid AND mou_id=:id"
+    );
+    $upd->execute([
+        ':renewal_number' => $renewNumber,
+        ':new_start_date' => $newStart,
+        ':new_end_date'   => $newEnd,
+        ':document_path'  => $docPath,
+        ':notes'          => $notes,
+        ':rid'            => $rid,
+        ':id'             => $id,
+    ]);
+
+    // Recalculate parent MoU end date and status based on latest renewal
+    $latestRenew = $db->prepare("SELECT * FROM mou_renewals WHERE mou_id=:id ORDER BY new_end_date DESC LIMIT 1");
+    $latestRenew->execute([':id' => $id]);
+    $latest = $latestRenew->fetch();
+    if ($latest) {
+        $newStatus = compute_mou_status($latest['new_end_date'], $mou['status'], $mou['reminder_days']);
+        $updMou = $db->prepare("UPDATE mous SET end_date=:e, status=:status WHERE id=:id");
+        $updMou->execute([':e' => $latest['new_end_date'], ':status' => $newStatus, ':id' => $id]);
+    }
+
+    log_activity('UPDATE_RENEWAL_MOU', "Memperbarui adendum/perpanjangan #{$rid} untuk MoU #{$id}: {$renewNumber}");
+    flash('success', "Data adendum/perpanjangan '{$renewNumber}' berhasil diperbarui.");
+    header('Location: ' . APP_URL . '/admin/mou/' . $id . '/edit');
+    exit;
+}
+
+function mou_renew_delete(array $params): void
+{
+    auth_check();
+    if (!verify_csrf()) { http_response_code(403); die('CSRF mismatch'); }
+
+    $db  = get_db();
+    $id  = sanitize($params['id'] ?? '');
+    $rid = (int) ($params['renewal_id'] ?? 0);
+
+    if (!_is_valid_uuid($id) || $rid <= 0) { http_response_code(404); exit; }
+
+    $stmt = $db->prepare("SELECT * FROM mous WHERE id=:id");
+    $stmt->execute([':id' => $id]);
+    $mou = $stmt->fetch();
+    if (!$mou) { http_response_code(404); exit; }
+
+    $rStmt = $db->prepare("SELECT * FROM mou_renewals WHERE id=:rid AND mou_id=:id");
+    $rStmt->execute([':rid' => $rid, ':id' => $id]);
+    $renewal = $rStmt->fetch();
+    if (!$renewal) { http_response_code(404); exit; }
+
+    delete_upload($renewal['document_path']);
+    $db->prepare("DELETE FROM mou_renewals WHERE id=:rid AND mou_id=:id")->execute([':rid' => $rid, ':id' => $id]);
+
+    // Recalculate parent MoU end date and status based on latest remaining renewal
+    $latestRenew = $db->prepare("SELECT * FROM mou_renewals WHERE mou_id=:id ORDER BY new_end_date DESC LIMIT 1");
+    $latestRenew->execute([':id' => $id]);
+    $latest = $latestRenew->fetch();
+    if ($latest) {
+        $newStatus = compute_mou_status($latest['new_end_date'], $mou['status'], $mou['reminder_days']);
+        $updMou = $db->prepare("UPDATE mous SET end_date=:e, status=:status WHERE id=:id");
+        $updMou->execute([':e' => $latest['new_end_date'], ':status' => $newStatus, ':id' => $id]);
+    }
+
+    log_activity('DELETE_RENEWAL_MOU', "Menghapus adendum/perpanjangan #{$rid} ({$renewal['renewal_number']}) dari MoU #{$id}");
+    flash('success', "Riwayat adendum '{$renewal['renewal_number']}' berhasil dihapus.");
     header('Location: ' . APP_URL . '/admin/mou/' . $id . '/edit');
     exit;
 }

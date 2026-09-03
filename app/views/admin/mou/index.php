@@ -113,6 +113,15 @@ function pag_link(array $pag, int $targetPage): string
                                 <i class="fa-solid fa-file-circle-xmark"></i> No PDF
                             </span>
                             <?php endif; ?>
+
+                            <!-- Info Adendum / Perpanjangan -->
+                            <?php if (!empty($m['renewal_count']) && $m['renewal_count'] > 0): ?>
+                            <span class="badge" style="background:var(--accent-l); color:var(--accent); border:1px solid rgba(13,148,136,.2);"
+                                  title="Terakhir: <?= e($m['latest_renewal_number'] ?? '-') ?> s/d <?= !empty($m['latest_renewal_end_date']) ? format_date_id($m['latest_renewal_end_date'], 'short') : '-' ?>">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <?= (int)$m['renewal_count'] ?>x Adendum
+                            </span>
+                            <?php endif; ?>
                         </div>
                     </td>
                     <td><?= e($m['institution_name']) ?></td>

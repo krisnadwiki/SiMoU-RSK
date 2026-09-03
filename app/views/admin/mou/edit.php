@@ -26,9 +26,7 @@ require __DIR__ . '/../../layouts/header.php';
     <?php endif; ?>
 
     <!-- MoU Info Strip / Summary Card -->
-    <div style="background:var(--grad-card); border:1px solid var(--border);
-                border-radius:var(--radius-lg); padding:18px 22px; margin-bottom:20px;
-                display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:16px; align-items:center;">
+    <div class="mou-summary-strip">
         <div>
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">No. Surat RSUD</div>
             <code style="font-size:.82rem; font-weight:700; color:var(--primary);"><?= e($mou['mou_number']) ?></code>
@@ -60,7 +58,7 @@ require __DIR__ . '/../../layouts/header.php';
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px;">Status Dokumen</div>
             <?= status_badge($mou['status']) ?>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px; justify-content:center; align-items:stretch; min-width:180px;">
+        <div class="mou-summary-actions">
             <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/renew" class="btn btn-primary btn-sm" style="width:100%; justify-content:center;" title="Perbarui, Perpanjang, atau Tambah Adendum">
                 <i class="fa-solid fa-rotate-right"></i> Perbarui / Adendum
             </a>
@@ -73,7 +71,7 @@ require __DIR__ . '/../../layouts/header.php';
         </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 320px; gap:20px; align-items:start;">
+    <div class="mou-detail-layout">
 
         <!-- Edit Form -->
         <div class="card">
@@ -231,21 +229,26 @@ require __DIR__ . '/../../layouts/header.php';
         </div>
 
         <!-- Renewal History Sidebar -->
-        <div class="card">
-            <div class="card-header">
+        <div class="card history-card" id="historyCard">
+            <div class="card-header history-card-header" onclick="toggleHistoryCard()" title="Klik untuk membuka/menutup histori">
                 <div class="card-title">
-                    <i class="fa-solid fa-history"></i> Histori Perpanjangan
+                    <i class="fa-solid fa-history" style="color:var(--primary);"></i> Histori Perpanjangan
                 </div>
-                <span class="badge badge-primary"><?= count($renewals) ?>x</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-primary"><?= count($renewals) ?>x</span>
+                    <button type="button" class="history-toggle-btn" aria-label="Buka/Tutup Histori Perpanjangan">
+                        <i class="fa-solid fa-chevron-down history-toggle-icon"></i>
+                    </button>
+                </div>
             </div>
-            <div class="card-body" style="padding: 16px;">
+            <div class="card-body history-card-body" style="padding: 16px;">
                 <?php if (empty($renewals)): ?>
-                    <div class="empty-state" style="padding:20px 0;">
-                        <i class="fa-solid fa-rotate-right" style="font-size:1.5rem;"></i>
-                        <h3 style="font-size:.85rem;">Belum ada perpanjangan</h3>
+                    <div class="empty-state" style="padding:16px 0;">
+                        <i class="fa-solid fa-rotate-right" style="font-size:1.4rem;"></i>
+                        <h3 style="font-size:.82rem;">Belum ada perpanjangan</h3>
                     </div>
                 <?php else: ?>
-                    <div class="timeline">
+                    <div class="timeline timeline-scrollable">
                         <?php foreach ($renewals as $r): ?>
                         <div class="timeline-item">
                             <div class="timeline-date"><?= format_date_id($r['created_at'], 'medium') ?></div>
@@ -262,18 +265,24 @@ require __DIR__ . '/../../layouts/header.php';
                                     <?= e($r['notes']) ?>
                                 </div>
                                 <?php endif; ?>
-                                <?php if (!empty($r['document_path'])): ?>
-                                <div style="margin-top:6px;">
+                                <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                    <!-- Edit button -->
+                                    <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/renew/<?= $r['id'] ?>/edit"
+                                       class="btn btn-outline btn-sm" style="font-size:.72rem; padding:3px 8px; color:var(--accent); border-color:rgba(13,148,136,.3);"
+                                       title="Edit entri perpanjangan / adendum ini">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </a>
+                                    <?php if (!empty($r['document_path'])): ?>
                                     <a href="<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document" target="_blank"
                                        class="btn btn-outline btn-sm" style="font-size:.72rem; padding:3px 8px; color:var(--primary);">
-                                        <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat Berkas Addendum PDF
+                                        <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF
                                     </a>
+                                    <?php else: ?>
+                                    <span style="font-size:.7rem; color:var(--text-muted);">
+                                        <i class="fa-solid fa-file-circle-xmark"></i> Belum ada PDF
+                                    </span>
+                                    <?php endif; ?>
                                 </div>
-                                <?php else: ?>
-                                <div style="font-size:.72rem; color:var(--text-muted); margin-top:4px;">
-                                    <i class="fa-solid fa-file-circle-xmark"></i> Berkas PDF Addendum belum diunggah
-                                </div>
-                                <?php endif; ?>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -288,6 +297,21 @@ require __DIR__ . '/../../layouts/header.php';
 
 <?php
 $extraScript = <<<'JS'
+function toggleHistoryCard() {
+    const card = document.getElementById('historyCard');
+    if (card) {
+        card.classList.toggle('is-collapsed');
+    }
+}
+
+// Initial state on mobile: collapsed so history does not crowd screen
+document.addEventListener('DOMContentLoaded', function() {
+    const card = document.getElementById('historyCard');
+    if (card && window.innerWidth <= 900) {
+        card.classList.add('is-collapsed');
+    }
+});
+
 function updateFileLabel(input, labelId) {
     const label = document.getElementById(labelId);
     if (input.files && input.files[0]) {

@@ -62,7 +62,7 @@ $daysLeft = days_until($mou['end_date']);
         </div>
         <?php endif; ?>
 
-        <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px; align-items:start;">
+        <div class="public-detail-grid">
 
             <!-- PDF Viewer -->
             <div>
@@ -204,13 +204,18 @@ $daysLeft = days_until($mou['end_date']);
 
                 <!-- Renewal History -->
                 <?php if (!empty($renewals)): ?>
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title"><i class="fa-solid fa-history"></i> Histori Perpanjangan</div>
-                        <span class="badge badge-primary"><?= count($renewals) ?>x</span>
+                <div class="card history-card" id="publicHistoryCard">
+                    <div class="card-header history-card-header" onclick="togglePublicHistory()" title="Klik untuk membuka/menutup histori">
+                        <div class="card-title"><i class="fa-solid fa-history" style="color:var(--primary);"></i> Histori Perpanjangan</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="badge badge-primary"><?= count($renewals) ?>x</span>
+                            <button type="button" class="history-toggle-btn" aria-label="Buka/Tutup Histori Perpanjangan">
+                                <i class="fa-solid fa-chevron-down history-toggle-icon"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body" style="padding:16px;">
-                        <div class="timeline">
+                    <div class="card-body history-card-body" style="padding:16px;">
+                        <div class="timeline timeline-scrollable">
                             <?php foreach ($renewals as $r): ?>
                             <div class="timeline-item">
                                 <div class="timeline-date"><?= format_date_id($r['created_at'], 'medium') ?></div>
@@ -239,3 +244,19 @@ $daysLeft = days_until($mou['end_date']);
         </div><!-- /grid -->
     </div>
 </section>
+
+<script>
+function togglePublicHistory() {
+    const card = document.getElementById('publicHistoryCard');
+    if (card) {
+        card.classList.toggle('is-collapsed');
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const card = document.getElementById('publicHistoryCard');
+    if (card && window.innerWidth <= 900) {
+        card.classList.add('is-collapsed');
+    }
+});
+</script>
+
