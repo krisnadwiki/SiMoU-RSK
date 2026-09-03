@@ -138,13 +138,14 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
 --  DATA MASTER INSIAL (PRODUKSI)
 -- ============================================================
 
--- Default superadmin (password: password123)
-INSERT INTO `users` (`username`, `password`, `name`, `email`, `role`)
+-- Default superadmin (password: password / password123)
+INSERT INTO `users` (`username`, `password`, `name`, `email`, `role`, `is_active`)
 VALUES ('admin',
         '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
         'Administrator RSUD Kilisuci',
         'admin@rsudkilisuci.kedirikota.go.id',
-        'superadmin')
+        'superadmin',
+        1)
 ON DUPLICATE KEY UPDATE `id` = `id`;
 
 -- Kategori MoU
