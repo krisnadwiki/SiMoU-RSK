@@ -15,7 +15,48 @@ loadEnv(__DIR__ . '/../.env');
 define('APP_NAME',              env('APP_NAME',    'SiMoU RSUD Kilisuci'));
 define('APP_SHORT',             env('APP_SHORT',   'SiMoU'));
 define('APP_VERSION',           env('APP_VERSION', '1.0.0'));
-define('APP_URL',               rtrim(env('APP_URL', 'http://localhost:8083'), '/'));
+
+/**
+ * Deteksi URL dasar aplikasi (APP_URL) secara dinamis berdasarkan Host & Protocol HTTP Request.
+ * Jika APP_URL di .env diisi domain spesifik (selain 'auto', bukan empty, dan bukan localhost saat diakses via IP/Domain),
+ * maka nilai .env tersebut yang digunakan.
+ */
+function get_dynamic_app_url(): string
+{
+    $envUrl = trim((string) env('APP_URL', ''));
+
+    // Deteksi HTTPS (termasuk di belakang Reverse Proxy / Load Balancer)
+    $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+        || (($_SERVER['SERVER_PORT'] ?? 80) == 443)
+        || (strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https');
+
+    $scheme = $isHttps ? 'https' : 'http';
+
+    // Jika ada HTTP_HOST dari browser/client request
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'];
+
+        // Jika APP_URL di .env diset spesifik selain 'auto' & bukan localhost (misal: https://simou.rsudkilisuci.id)
+        if (!empty($envUrl) && strtolower($envUrl) !== 'auto') {
+            $isEnvLocalhost = str_contains($envUrl, 'localhost') || str_contains($envUrl, '127.0.0.1');
+            if (!$isEnvLocalhost) {
+                return rtrim($envUrl, '/');
+            }
+        }
+
+        // Gunakan Host & Port dinamis dari HTTP request
+        return $scheme . '://' . $host;
+    }
+
+    // Fallback untuk CLI / CRON / Task background di luar HTTP request
+    if (!empty($envUrl) && strtolower($envUrl) !== 'auto') {
+        return rtrim($envUrl, '/');
+    }
+
+    return 'http://localhost:8083';
+}
+
+define('APP_URL',               get_dynamic_app_url());
 
 define('LOGIN_MAX_ATTEMPTS',    (int) env('LOGIN_MAX_ATTEMPTS',    5));
 define('LOGIN_WINDOW_SECONDS',  (int) env('LOGIN_WINDOW_SECONDS',  600));
