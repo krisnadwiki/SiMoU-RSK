@@ -2237,6 +2237,17 @@ textarea.form-control {
     }
 }
 
+@media (max-width: 480px) {
+    .radio-btn-group {
+        grid-template-columns: 1fr;
+    }
+    .radio-btn-group label {
+        white-space: normal;
+        text-align: left;
+        justify-content: flex-start;
+    }
+}
+
 /* ── Profile Dropdown Menu ──────────────────────────────── */
 .profile-dropdown-wrapper {
     position: relative;
@@ -3122,6 +3133,19 @@ textarea.form-control {
         flex-direction: column;
         gap: 16px;
         width: 100%;
+    }
+
+    /* Accordion takes full horizontal width when stacked */
+    .history-card {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    /* Both grid children fill full width when stacked */
+    .mou-detail-layout > .card {
+        width: 100%;
+        min-width: 0;
     }
 
     .history-card-header {
