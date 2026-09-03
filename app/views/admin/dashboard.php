@@ -56,7 +56,7 @@ $statusMap    = array_column($statusData, 'total', 'status');
     </div>
 
     <!-- Charts Row -->
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px;">
+    <div class="dashboard-charts-grid">
 
         <!-- Chart: MoU per Tahun -->
         <div class="card">
@@ -295,6 +295,7 @@ $statusMap    = array_column($statusData, 'total', 'status');
 $extraScript = <<<JS
 document.addEventListener('DOMContentLoaded', () => {
     const palette = ['#0a7ea4','#0d9488','#16a34a','#d97706','#dc2626','#7c3aed','#db2777','#0891b2'];
+    const isMobile = window.innerWidth <= 768;
 
     // Bar Chart — per Tahun
     const ctxY = document.getElementById('chartYearly')?.getContext('2d');
@@ -307,17 +308,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     label: 'Jumlah MoU',
                     data: {$yearValues},
                     backgroundColor: 'rgba(10,126,164,.85)',
-                    borderRadius: 8,
+                    borderRadius: 6,
                     borderSkipped: false,
+                    maxBarThickness: isMobile ? 28 : 40,
                 }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 12 }
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 },
-                         grid: { color: 'rgba(0,0,0,.05)' } },
-                    x: { grid: { display: false } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            font: { size: isMobile ? 10 : 11 }
+                        },
+                        grid: { color: 'rgba(0,0,0,.05)' }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: isMobile ? 10 : 11 },
+                            maxRotation: isMobile ? 45 : 0
+                        },
+                        grid: { display: false }
+                    }
                 }
             }
         });
@@ -334,19 +357,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: {$catValues},
                     backgroundColor: palette,
                     borderWidth: 2,
-                    borderColor: '#fff',
-                    hoverOffset: 8
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
                 }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: isMobile ? 4 : 10
+                },
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: { font: { size: 11 }, padding: 12, boxWidth: 12 }
+                        position: isMobile ? 'bottom' : 'right',
+                        labels: {
+                            font: { size: isMobile ? 10 : 11 },
+                            padding: isMobile ? 8 : 12,
+                            boxWidth: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        padding: 10,
+                        cornerRadius: 8
                     }
                 },
-                cutout: '65%'
+                cutout: isMobile ? '55%' : '65%'
             }
         });
     }
