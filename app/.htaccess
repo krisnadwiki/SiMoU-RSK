@@ -4,10 +4,14 @@ RewriteEngine On
 # 1. Block direct HTTP access to sensitive internal directories and PDF uploads
 RewriteRule ^(config|helpers|controllers|views|uploads/documents)/ - [F,L]
 
-# 2. Serve existing static assets directly (CSS, JS, images, favicon)
+# 2. Service Worker & Offline page must be accessible at root scope
+RewriteRule ^sw\.js$ sw.js [L]
+RewriteRule ^offline\.html$ offline.html [L]
+
+# 3. Serve existing static assets directly (CSS, JS, images, favicon)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 3. Route all other requests through front-controller index.php
+# 4. Route all other requests through front-controller index.php
 RewriteRule ^ index.php [L]

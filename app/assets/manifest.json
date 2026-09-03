@@ -1,0 +1,44 @@
+{
+    "name": "SiMoU RSUD Kilisuci",
+    "short_name": "SiMoU",
+    "description": "Sistem Informasi MoU & MoA RSUD Kilisuci Kota Kediri",
+    "start_url": "/admin",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#0d2635",
+    "theme_color": "#0a7ea4",
+    "lang": "id",
+    "categories": ["productivity", "medical"],
+    "icons": [
+        {
+            "src": "/assets/image/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/assets/image/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Daftar MoU",
+            "short_name": "MoU",
+            "description": "Buka daftar dokumen MoU / MoA",
+            "url": "/admin/mou",
+            "icons": [{ "src": "/assets/image/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Tambah MoU",
+            "short_name": "Tambah",
+            "description": "Tambah dokumen MoU baru",
+            "url": "/admin/mou/create",
+            "icons": [{ "src": "/assets/image/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}

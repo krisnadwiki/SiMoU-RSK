@@ -251,5 +251,33 @@ document.addEventListener('DOMContentLoaded', () => {
 <script><?= $extraScript ?></script>
 <?php endif; ?>
 
+<!-- PWA: Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then(function (reg) {
+                console.log('[PWA] Service Worker terdaftar, scope:', reg.scope);
+
+                // Deteksi update SW tersedia → notifikasi ke user
+                reg.addEventListener('updatefound', function () {
+                    const newWorker = reg.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', function () {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if (typeof showToast === 'function') {
+                                showToast('Versi baru SiMoU tersedia. Muat ulang untuk memperbarui.', 'info', 8000);
+                            }
+                        }
+                    });
+                });
+            })
+            .catch(function (err) {
+                console.warn('[PWA] Registrasi Service Worker gagal:', err);
+            });
+    });
+}
+</script>
+
 </body>
 </html>

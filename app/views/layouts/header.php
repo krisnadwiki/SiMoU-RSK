@@ -29,6 +29,14 @@ $_tglNow  = $_hariId[(int)date('w')] . ', ' . date('j') . ' ' . $_bulanId[(int)d
     <title><?= e($pageTitle ?? 'Admin') ?> - <?= e(APP_NAME) ?></title>
 
     <link rel="icon" type="image/png" href="<?= APP_URL ?>/assets/image/favicon.png">
+    <!-- PWA -->
+    <link rel="manifest" href="<?= APP_URL ?>/assets/manifest.php">
+    <link rel="apple-touch-icon" href="<?= APP_URL ?>/assets/image/icon-192.png">
+    <meta name="theme-color" content="#0a7ea4">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SiMoU">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Google Fonts: Inter -->

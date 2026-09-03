@@ -16,6 +16,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css?v=<?= APP_VERSION ?>.<?= time() ?>">
+    <!-- PWA -->
+    <link rel="manifest" href="<?= APP_URL ?>/assets/manifest.php">
+    <link rel="apple-touch-icon" href="<?= APP_URL ?>/assets/image/icon-192.png">
+    <meta name="theme-color" content="#0a7ea4">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SiMoU">
 </head>
 <body>
 
@@ -61,5 +69,18 @@
 <?php if (isset($extraScript)): ?>
 <script><?= $extraScript ?></script>
 <?php endif; ?>
+
+<!-- PWA: Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .catch(function (err) {
+                console.warn('[PWA] Registrasi Service Worker gagal:', err);
+            });
+    });
+}
+</script>
+
 </body>
 </html>
