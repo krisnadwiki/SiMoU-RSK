@@ -1,20 +1,12 @@
-        <!-- Application Footer -->
+        <!-- Application Footer (Sticky Copyright Bar) -->
         <footer class="app-footer">
-            <div class="container-fluid px-4">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="width:100%;">
-                    <span class="footer-text" style="display:inline-flex; align-items:center; gap:6px;">
-                        <img src="<?= APP_URL ?>/assets/image/logo.png" alt="SiMoU Logo" class="footer-logo-img me-1" width="18" height="18">
-                        <strong style="color:var(--primary);">SiMoU</strong>
-                        &ndash; Sistem Informasi MoU &amp; MoA RSUD Kilisuci
-                    </span>
-                    <span class="footer-text">
-                        &copy; 2022&ndash;2026 ICT RSUD Kilisuci
-                        <span class="footer-divider">&middot;</span>
-                        RSUD Kilisuci Kota Kediri
-                    </span>
-                </div>
-            </div>
+            <span class="footer-copyright">
+                <strong>SiMoU</strong>
+                <span class="footer-sep">&middot;</span>
+                &copy; <?= date('Y') ?> ICT RSUD Kilisuci Kota Kediri
+            </span>
         </footer>
+
 
         <!-- /page body -->
     </div><!-- /.main-content -->
