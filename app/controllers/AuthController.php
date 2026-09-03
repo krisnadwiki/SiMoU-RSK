@@ -31,6 +31,12 @@ function auth_login_form(array $params): void
 
 function auth_login_post(array $params): void
 {
+    if (!verify_csrf()) {
+        $_SESSION['_login_error'] = 'Token keamanan (CSRF) tidak valid atau sesi telah kedaluwarsa. Silakan muat ulang halaman.';
+        header('Location: ' . APP_URL . '/login');
+        exit;
+    }
+
     $identifier = sanitize($_POST['identifier'] ?? '');
     $password   = $_POST['password'] ?? '';
 
