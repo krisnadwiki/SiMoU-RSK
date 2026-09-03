@@ -23,7 +23,7 @@ Platform repositori dan sistem manajemen dokumen **Kerjasama**, **MoU (Memorandu
   - **Backup Berkas Dokumen (.ZIP)**: Mengompresi seluruh berkas PDF fisik ke dalam arsip ZIP.
   - **Backup Lengkap System (.ZIP)**: Unduh paket komplit `.sql` + seluruh berkas PDF dokumen.
   - **Live Restore Modal & AJAX Progress**: Pemulihan database asinkron dengan indikator *progress bar* (`0%` ➔ `100%`), *step checklist* real-time, serta umpan balik kesalahan SQL / sukses secara interaktif.
-- **Manajemen Pengguna & Penguatan Keamanan Password** — Pengelolaan pengguna (Superadmin & Admin), verifikasi password lama saat pembaruan password mandiri, enkripsi BCrypt, CSRF Protection, Session Hardening, serta Rate Limiting Login (lockout otomatis 15 menit jika 5x gagal).
+- **Manajemen Pengguna & Penguatan Keamanan Password** — Pengelolaan pengguna (Superadmin & Admin), fitur aktivasi & penonaktifan akun (status aktif/nonaktif), verifikasi password lama saat pembaruan password mandiri, enkripsi BCrypt, CSRF Protection, Session Hardening, serta Rate Limiting Login (lockout otomatis 15 menit jika 5x gagal).
 - **Manajemen Institusi & Unit Kerja Internal** — Pengelolaan data mitra (Pendidikan, Kesehatan, Pemerintah, BUMN/BUMD, Swasta, Organisasi/Asosiasi, Keuangan, Profesional, Internasional, Lainnya) dan unit kerja internal RSUD Kilisuci berbasis Data Table dengan *filter kategori* dan *sticky header*.
 - **Export Data CSV** — Rekapitulasi laporan dokumen ke format CSV (UTF-8 BOM, kompatibel penuh dengan Microsoft Excel).
 - **Audit Trail & Activity Log** — Pencatatan log aktivitas pengurus dan aktivitas sistem secara otomatis.

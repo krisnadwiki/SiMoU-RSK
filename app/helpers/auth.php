@@ -36,48 +36,35 @@ function attempt_login(string $identifier, string $password): array
         return ['success' => false, 'message' => 'Username/email dan password wajib diisi.'];
     }
 
-    // 3. Query user from DB with fallback
+    // 3. Query user from DB (strictly from database)
     $user = null;
     try {
         $db   = get_db();
         $stmt = $db->prepare(
-            "SELECT id, username, password, name, email, role
+            "SELECT id, username, password, name, email, role, is_active
              FROM users
              WHERE username = :id OR email = :id
              LIMIT 1"
         );
         $stmt->execute([':id' => $identifier]);
         $user = $stmt->fetch();
-
-        // If user not found in DB, but identifier is admin, insert/auto-seed admin user
-        if (!$user && ($identifier === 'admin' || str_contains(strtolower($identifier), 'admin'))) {
-            try {
-                $db->exec(
-                    "INSERT INTO users (username, password, name, email, role)
-                     VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-                             'Administrator RSUD Kilisuci', 'admin@rsudkilisuci.kedirikota.go.id', 'superadmin')
-                     ON DUPLICATE KEY UPDATE id=id"
-                );
-                $stmt->execute([':id' => $identifier]);
-                $user = $stmt->fetch();
-            } catch (Throwable $t) {
-                // Ignore DB error during auto-seed
-            }
-        }
     } catch (Throwable $e) {
-        error_log('[SiMoU] Login DB warning: ' . $e->getMessage());
-    }
-
-    // Fallback default admin user if DB is empty or unpopulated
-    if (!$user && ($identifier === 'admin' || str_contains(strtolower($identifier), 'admin'))) {
-        $user = [
-            'id'       => 1,
-            'username' => 'admin',
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-            'name'     => 'Administrator RSUD Kilisuci',
-            'email'    => 'admin@rsudkilisuci.kedirikota.go.id',
-            'role'     => 'superadmin',
-        ];
+        // Fallback query if is_active column does not exist yet
+        try {
+            $stmt = $db->prepare(
+                "SELECT id, username, password, name, email, role
+                 FROM users
+                 WHERE username = :id OR email = :id
+                 LIMIT 1"
+            );
+            $stmt->execute([':id' => $identifier]);
+            $user = $stmt->fetch();
+            if ($user && !isset($user['is_active'])) {
+                $user['is_active'] = 1;
+            }
+        } catch (Throwable $t) {
+            error_log('[SiMoU] Login DB warning: ' . $t->getMessage());
+        }
     }
 
     // 4. Verify password
@@ -97,6 +84,15 @@ function attempt_login(string $identifier, string $password): array
         }
         log_activity('LOGIN_FAILED', "Gagal login untuk identifier: {$identifier}");
         return ['success' => false, 'message' => $msg];
+    }
+
+    // 5. Check if account is active / disabled
+    if (isset($user['is_active']) && (int) $user['is_active'] === 0) {
+        log_activity('LOGIN_DEACTIVATED', "Percobaan login akun nonaktif: {$user['username']} (ID#{$user['id']})", (int) $user['id']);
+        return [
+            'success' => false,
+            'message' => 'Akun Anda saat ini dinonaktifkan oleh Administrator. Silakan hubungi pengelola sistem.'
+        ];
     }
 
     // 5. Login sukses — buat session

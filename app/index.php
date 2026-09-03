@@ -68,6 +68,7 @@ $routes = [
     ['GET',  '/admin/users',                  'controllers/UserController.php',        'user_index'],
     ['POST', '/admin/users/create',           'controllers/UserController.php',        'user_create'],
     ['POST', '/admin/users/{id}/edit',        'controllers/UserController.php',        'user_edit'],
+    ['POST', '/admin/users/{id}/toggle-status','controllers/UserController.php',       'user_toggle_status'],
     ['POST', '/admin/users/{id}/delete',      'controllers/UserController.php',        'user_delete'],
 
     // Export

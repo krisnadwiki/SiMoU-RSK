@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `name`       VARCHAR(100) NOT NULL,
     `email`      VARCHAR(100) NOT NULL,
     `role`       ENUM('admin','superadmin') NOT NULL DEFAULT 'admin',
+    `is_active`  TINYINT(1)   NOT NULL DEFAULT 1 COMMENT '1=Active, 0=Deactivated',
     `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_username` (`username`),

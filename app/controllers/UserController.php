@@ -3,6 +3,21 @@
  * UserController.php — Manage Admin Users (Superadmin only)
  */
 
+function ensure_users_is_active_column(PDO $db): void
+{
+    static $checked = false;
+    if ($checked) return;
+    try {
+        $cols = $db->query("SHOW COLUMNS FROM users LIKE 'is_active'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE users ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=Active, 0=Deactivated' AFTER role");
+        }
+        $checked = true;
+    } catch (Throwable $e) {
+        error_log('[SiMoU] Auto-migrate is_active warning: ' . $e->getMessage());
+    }
+}
+
 function user_index(array $params): void
 {
     auth_check();
@@ -12,8 +27,10 @@ function user_index(array $params): void
         exit;
     }
 
-    $db    = get_db();
-    $users = $db->query("SELECT id, username, name, email, role, created_at FROM users ORDER BY name")->fetchAll();
+    $db = get_db();
+    ensure_users_is_active_column($db);
+
+    $users = $db->query("SELECT id, username, name, email, role, COALESCE(is_active, 1) AS is_active, created_at FROM users ORDER BY name")->fetchAll();
 
     $pageTitle  = 'Manajemen Pengguna';
     $activeMenu = 'users';
@@ -32,6 +49,7 @@ function user_create(array $params): void
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['password_confirm'] ?? '';
     $role     = in_array($_POST['role'] ?? '', ['admin', 'superadmin'], true) ? $_POST['role'] : 'admin';
+    $isActive = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
 
     if (!$username || !$name || !$email || !$password) {
         flash('error', 'Semua field wajib diisi.');
@@ -46,6 +64,7 @@ function user_create(array $params): void
     }
 
     $db = get_db();
+    ensure_users_is_active_column($db);
 
     // Check duplicate username/email
     $dup = $db->prepare("SELECT id FROM users WHERE username = :u OR email = :e LIMIT 1");
@@ -58,15 +77,16 @@ function user_create(array $params): void
 
     $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
     $stmt   = $db->prepare(
-        "INSERT INTO users (username, password, name, email, role)
-         VALUES (:u, :p, :n, :e, :r)"
+        "INSERT INTO users (username, password, name, email, role, is_active)
+         VALUES (:u, :p, :n, :e, :r, :act)"
     );
     $stmt->execute([
-        ':u' => $username,
-        ':p' => $hashed,
-        ':n' => $name,
-        ':e' => $email,
-        ':r' => $role,
+        ':u'   => $username,
+        ':p'   => $hashed,
+        ':n'   => $name,
+        ':e'   => $email,
+        ':r'   => $role,
+        ':act' => $isActive,
     ]);
 
     log_activity('CREATE_USER', "Menambahkan pengguna baru: {$username} ({$role})");
@@ -85,6 +105,7 @@ function user_edit(array $params): void
     $name     = sanitize($_POST['name'] ?? '');
     $email    = sanitize($_POST['email'] ?? '');
     $role     = in_array($_POST['role'] ?? '', ['admin', 'superadmin'], true) ? $_POST['role'] : 'admin';
+    $isActive = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['password_confirm'] ?? '';
 
@@ -94,7 +115,16 @@ function user_edit(array $params): void
         exit;
     }
 
+    $curr = current_user()['id'] ?? 0;
+    // User cannot deactivate their own active account
+    if ($id === $curr && $isActive === 0) {
+        flash('error', 'Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan.');
+        header('Location: ' . APP_URL . '/admin/users');
+        exit;
+    }
+
     $db = get_db();
+    ensure_users_is_active_column($db);
 
     if ($password !== '') {
         if ($password !== $confirm) {
@@ -105,18 +135,57 @@ function user_edit(array $params): void
 
         $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
         $stmt   = $db->prepare(
-            "UPDATE users SET name=:n, email=:e, role=:r, password=:p WHERE id=:id"
+            "UPDATE users SET name=:n, email=:e, role=:r, is_active=:act, password=:p WHERE id=:id"
         );
-        $stmt->execute([':n' => $name, ':e' => $email, ':r' => $role, ':p' => $hashed, ':id' => $id]);
+        $stmt->execute([':n' => $name, ':e' => $email, ':r' => $role, ':act' => $isActive, ':p' => $hashed, ':id' => $id]);
     } else {
         $stmt = $db->prepare(
-            "UPDATE users SET name=:n, email=:e, role=:r WHERE id=:id"
+            "UPDATE users SET name=:n, email=:e, role=:r, is_active=:act WHERE id=:id"
         );
-        $stmt->execute([':n' => $name, ':e' => $email, ':r' => $role, ':id' => $id]);
+        $stmt->execute([':n' => $name, ':e' => $email, ':r' => $role, ':act' => $isActive, ':id' => $id]);
     }
 
     log_activity('UPDATE_USER', "Memperbarui pengguna ID#{$id}: {$name}");
     flash('success', "Data pengguna berhasil diperbarui.");
+    header('Location: ' . APP_URL . '/admin/users');
+    exit;
+}
+
+function user_toggle_status(array $params): void
+{
+    auth_check();
+    if (!verify_csrf()) { http_response_code(403); die('CSRF mismatch'); }
+    if (!has_role('superadmin')) { flash('error', 'Akses ditolak.'); header('Location: ' . APP_URL . '/admin'); exit; }
+
+    $id   = (int) ($params['id'] ?? 0);
+    $curr = current_user()['id'] ?? 0;
+
+    if ($id === $curr) {
+        flash('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri yang sedang aktif.');
+        header('Location: ' . APP_URL . '/admin/users');
+        exit;
+    }
+
+    $db = get_db();
+    ensure_users_is_active_column($db);
+
+    $stmt = $db->prepare("SELECT id, username, name, COALESCE(is_active, 1) AS is_active FROM users WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $id]);
+    $u = $stmt->fetch();
+
+    if (!$u) {
+        flash('error', 'Pengguna tidak ditemukan.');
+        header('Location: ' . APP_URL . '/admin/users');
+        exit;
+    }
+
+    $newStatus = ((int)$u['is_active'] === 1) ? 0 : 1;
+    $db->prepare("UPDATE users SET is_active = :act WHERE id = :id")->execute([':act' => $newStatus, ':id' => $id]);
+
+    $statusLabel = $newStatus === 1 ? 'diaktifkan' : 'dinonaktifkan';
+    log_activity('TOGGLE_USER_STATUS', "Status pengguna '{$u['username']}' diubah menjadi {$statusLabel}");
+    flash('success', "Akun pengguna '{$u['name']}' berhasil {$statusLabel}.");
+
     header('Location: ' . APP_URL . '/admin/users');
     exit;
 }
