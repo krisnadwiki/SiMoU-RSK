@@ -36,40 +36,43 @@ function attempt_login(string $identifier, string $password): array
         return ['success' => false, 'message' => 'Username/email dan password wajib diisi.'];
     }
 
-    // 3. Query user from DB (strictly from database)
+    // 3. Query user from DB
     $user = null;
+    $db   = get_db();
+
+    // Ensure users table & is_active column exist
     try {
-        $db = get_db();
-
-        // Ensure users table & is_active column exist
-        try {
-            $cols = $db->query("SHOW COLUMNS FROM users LIKE 'is_active'")->fetchAll();
-            if (empty($cols)) {
-                $db->exec("ALTER TABLE users ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=Active, 0=Deactivated' AFTER role");
-            }
-        } catch (Throwable $t) {}
-
-        // Check if users table is completely empty (e.g. fresh database setup)
-        $userCount = (int) $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-        if ($userCount === 0) {
-            $defaultHash = password_hash('password', PASSWORD_BCRYPT);
-            $db->exec(
-                "INSERT INTO users (username, password, name, email, role, is_active)
-                 VALUES ('admin', '{$defaultHash}', 'Administrator RSUD Kilisuci',
-                         'admin@rsudkilisuci.kedirikota.go.id', 'superadmin', 1)"
-            );
+        $cols = $db->query("SHOW COLUMNS FROM users LIKE 'is_active'")->fetchAll();
+        if (empty($cols)) {
+            $db->exec("ALTER TABLE users ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=Active, 0=Deactivated' AFTER role");
         }
+    } catch (Throwable $t) {}
 
-        $stmt = $db->prepare(
-            "SELECT id, username, password, name, email, role, COALESCE(is_active, 1) AS is_active
-             FROM users
-             WHERE username = :id OR email = :id
-             LIMIT 1"
-        );
-        $stmt->execute([':id' => $identifier]);
-        $user = $stmt->fetch();
-    } catch (Throwable $e) {
-        error_log('[SiMoU] Login DB warning: ' . $e->getMessage());
+    // Find user by username or email
+    $stmt = $db->prepare(
+        "SELECT id, username, password, name, email, role, COALESCE(is_active, 1) AS is_active
+         FROM users
+         WHERE username = :id OR email = :id
+         LIMIT 1"
+    );
+    $stmt->execute([':id' => $identifier]);
+    $user = $stmt->fetch();
+
+    // If 'admin' user does not exist in DB, and user enters default credentials 'admin' + 'password' / 'password123'
+    if (!$user && ($identifier === 'admin' || $identifier === 'admin@rsudkilisuci.kedirikota.go.id') && ($password === 'password' || $password === 'password123')) {
+        try {
+            $defaultHash = password_hash($password, PASSWORD_BCRYPT);
+            $db->prepare(
+                "INSERT INTO users (username, password, name, email, role, is_active)
+                 VALUES ('admin', :p, 'Administrator RSUD Kilisuci', 'admin@rsudkilisuci.kedirikota.go.id', 'superadmin', 1)
+                 ON DUPLICATE KEY UPDATE password = :p2, is_active = 1"
+            )->execute([':p' => $defaultHash, ':p2' => $defaultHash]);
+
+            $stmt->execute([':id' => $identifier]);
+            $user = $stmt->fetch();
+        } catch (Throwable $e) {
+            error_log('[SiMoU] Auto-create admin error: ' . $e->getMessage());
+        }
     }
 
     // 4. Verify password
@@ -79,7 +82,7 @@ function attempt_login(string $identifier, string $password): array
         if (password_verify($password, $user['password'])) {
             $validPassword = true;
         } elseif ($user['username'] === 'admin' && ($password === 'password' || $password === 'password123')) {
-            // Initial default admin compatibility (accepts 'password' or 'password123' on default account)
+            // Default initial admin password alias support
             $validPassword = true;
             try {
                 $newHash = password_hash($password, PASSWORD_BCRYPT);
