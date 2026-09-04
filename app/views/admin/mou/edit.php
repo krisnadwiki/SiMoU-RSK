@@ -27,20 +27,20 @@ require __DIR__ . '/../../layouts/header.php';
 
     <!-- MoU Info Strip / Summary Card -->
     <div class="mou-summary-strip">
-        <div>
+        <div style="min-width:0;">
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">No. Surat RSUD</div>
-            <code style="font-size:.82rem; font-weight:700; color:var(--primary);"><?= e($mou['mou_number']) ?></code>
+            <code style="font-size:.82rem; font-weight:700; color:var(--primary); word-break:break-all; overflow-wrap:anywhere;"><?= e($mou['mou_number']) ?></code>
             <?php if (!empty($mou['mou_number_mitra'])): ?>
             <div style="font-size:.7rem; color:var(--text-muted); margin-top:2px;">
-                Mitra: <code><?= e($mou['mou_number_mitra']) ?></code>
+                Mitra: <code style="word-break:break-all;"><?= e($mou['mou_number_mitra']) ?></code>
             </div>
             <?php endif; ?>
         </div>
-        <div>
+        <div style="min-width:0;">
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">Institusi / Mitra</div>
-            <div style="font-size:.88rem; font-weight:700; color:var(--text-main);"><?= e($mou['institution_name']) ?></div>
+            <div style="font-size:.88rem; font-weight:700; color:var(--text-main); overflow-wrap:break-word;"><?= e($mou['institution_name']) ?></div>
         </div>
-        <div>
+        <div style="min-width:0;">
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:2px;">Tanggal Berakhir</div>
             <div style="font-size:.85rem; font-weight:700; color:var(--text-main);">
                 <?= format_date_id($mou['end_date'], 'short') ?>
@@ -54,7 +54,7 @@ require __DIR__ . '/../../layouts/header.php';
                 <?php endif; ?>
             </div>
         </div>
-        <div>
+        <div style="min-width:0;">
             <div style="font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px;">Status Dokumen</div>
             <?= status_badge($mou['status']) ?>
         </div>
@@ -64,7 +64,7 @@ require __DIR__ . '/../../layouts/header.php';
             </a>
             <?php if ($mou['file_path']): ?>
             <a href="javascript:void(0)"
-               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','<?= e(addslashes($mou['mou_number'])) ?>')"
+               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','<?= e(addslashes($mou['mou_number'])) ?> - <?= e(addslashes($mou['institution_name'])) ?>')"
                class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" title="Lihat Berkas PDF Dokumen Utama">
                 <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF Utama
             </a>
@@ -275,7 +275,7 @@ require __DIR__ . '/../../layouts/header.php';
                                     </a>
                                     <?php if (!empty($r['document_path'])): ?>
                                     <a href="javascript:void(0)"
-                                       onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document?download=1','Addendum — <?= e(addslashes($r['renewal_number'])) ?>')"
+                                       onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/addendum/<?= $r['id'] ?>/document?download=1','<?= e(addslashes($r['renewal_number'])) ?> - <?= e(addslashes($mou['institution_name'])) ?>')"
                                        class="btn btn-outline btn-sm" style="font-size:.72rem; padding:3px 8px; color:var(--primary);">
                                         <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF
                                     </a>

@@ -1514,14 +1514,27 @@ textarea.form-control {
 
 .lp-input:focus {
     border-color: var(--primary);
-    background: #fff;
+    background: var(--bg-surface);
+    color: var(--text-main);
     box-shadow: 0 0 0 3px rgba(10,126,164,.12);
 }
 
-.lp-input::placeholder { color: var(--text-subtle); }
+/* Dark mode: pastikan teks input selalu terbaca */
+[data-theme="dark"] .lp-input {
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border);
+}
 
-.lp-input-group { position: relative; }
-.lp-input-group .lp-input { padding-right: 44px; }
+[data-theme="dark"] .lp-input:focus {
+    background: var(--bg-surface-2);
+    color: var(--text-main);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+}
+
+[data-theme="dark"] .lp-input::placeholder {
+    color: var(--text-subtle);
+}
 
 .lp-toggle-btn {
     position: absolute;
@@ -3033,9 +3046,14 @@ textarea.form-control {
     padding: 18px 22px;
     margin-bottom: 20px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.5fr) minmax(130px, 1fr) minmax(120px, 1fr) auto;
     gap: 16px;
     align-items: center;
+}
+
+/* Semua child langsung tidak boleh overflow keluar kolom grid */
+.mou-summary-strip > div {
+    min-width: 0;
 }
 
 .mou-summary-actions {
