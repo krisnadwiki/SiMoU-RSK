@@ -1,6 +1,6 @@
 <?php
 /**
- * views/admin/master/categories.php — Master Data: Kategori MoU
+ * views/admin/master/categories.php — Kategori MoU
  */
 
 require __DIR__ . '/../../layouts/header.php';
@@ -13,7 +13,7 @@ require __DIR__ . '/../../layouts/header.php';
         <div>
             <h3 style="font-size:1rem; font-weight:700;">
                 <i class="fa-solid fa-layer-group" style="color:var(--primary);"></i>
-                Master Data - Kategori MoU
+                Kategori MoU
             </h3>
             <p class="text-muted fs-sm">Kelola referensi kategori yang digunakan pada dokumen MoU / MoA</p>
         </div>

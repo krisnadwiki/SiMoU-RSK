@@ -1,6 +1,6 @@
 <?php
 /**
- * MasterController.php — Master Data: Kategori MoU
+ * MasterController.php — Kategori MoU
  * CRUD untuk data referensi aplikasi (Kategori)
  * Institusi & Unit Kerja sudah dikelola di InstitutionController & UnitController
  */
@@ -21,7 +21,7 @@ function master_categories_index(array $params): void
     $errors = $_SESSION['_form_errors'] ?? [];
     unset($_SESSION['_form_errors']);
 
-    $pageTitle  = 'Master Data — Kategori MoU';
+    $pageTitle  = 'Kategori MoU';
     $activeMenu = 'master';
     require __DIR__ . '/../views/admin/master/categories.php';
 }

@@ -46,7 +46,7 @@ $routes = [
     ['GET',  '/admin/mou/{id}/document','controllers/MouController.php',         'mou_download_document'],
     ['GET',  '/admin/mou/{id}/addendum/{renewal_id}/document', 'controllers/MouController.php', 'mou_download_addendum'],
 
-    // Master Data — Kategori MoU
+    // Kategori MoU
     ['GET',  '/admin/master/categories',                   'controllers/MasterController.php', 'master_categories_index'],
     ['POST', '/admin/master/categories/create',            'controllers/MasterController.php', 'master_categories_create'],
     ['POST', '/admin/master/categories/{id}/edit',         'controllers/MasterController.php', 'master_categories_edit'],
