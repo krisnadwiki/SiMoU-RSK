@@ -64,7 +64,7 @@ require __DIR__ . '/../../layouts/header.php';
             </a>
             <?php if ($mou['file_path']): ?>
             <a href="javascript:void(0)"
-               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','PDF Utama — <?= e(addslashes($mou['mou_number'])) ?>')"
+               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','<?= e(addslashes($mou['mou_number'])) ?>')"
                class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" title="Lihat Berkas PDF Dokumen Utama">
                 <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat PDF Utama
             </a>

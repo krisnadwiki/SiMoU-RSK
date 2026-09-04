@@ -1,24 +1,31 @@
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline — SiMoU RSUD Kilisuci</title>
+    <title>Offline | SiMoU RSUD Kilisuci</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --primary:   #0a7ea4;
-            --accent:    #0d9488;
-            --bg:        #f0f7fa;
-            --surface:   #ffffff;
-            --text:      #0d1f2d;
-            --muted:     #6b8fa3;
-            --border:    #cce5f0;
-            --grad:      linear-gradient(135deg, #0a7ea4 0%, #0d9488 100%);
-            --sidebar:   #0d2635;
+            --primary: #0a7ea4;
+            --accent: #0d9488;
+            --bg: #f0f7fa;
+            --surface: #ffffff;
+            --text: #0d1f2d;
+            --muted: #6b8fa3;
+            --border: #cce5f0;
+            --grad: linear-gradient(135deg, #0a7ea4 0%, #0d9488 100%);
+            --sidebar: #0d2635;
         }
 
         body {
@@ -38,7 +45,7 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 16px 40px rgba(10,126,164,.10);
+            box-shadow: 0 16px 40px rgba(10, 126, 164, .10);
             padding: 48px 40px;
             max-width: 440px;
             width: 100%;
@@ -48,7 +55,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(10,126,164,.12), rgba(13,148,136,.08));
+            background: linear-gradient(135deg, rgba(10, 126, 164, .12), rgba(13, 148, 136, .08));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -126,11 +133,14 @@
             font-weight: 700;
             cursor: pointer;
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(10,126,164,.3);
+            box-shadow: 0 4px 14px rgba(10, 126, 164, .3);
             transition: opacity .2s, transform .2s;
         }
 
-        .btn-retry:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-retry:hover {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
 
         .brand {
             margin-top: 32px;
@@ -139,75 +149,95 @@
             font-weight: 500;
         }
 
-        .brand strong { color: var(--primary); }
+        .brand strong {
+            color: var(--primary);
+        }
 
         /* Animated wifi lines */
         @keyframes pulse {
-            0%, 100% { opacity: .3; }
-            50%       { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: .3;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
-        .wifi-1 { animation: pulse 1.6s ease-in-out infinite; }
-        .wifi-2 { animation: pulse 1.6s ease-in-out .3s infinite; }
-        .wifi-3 { animation: pulse 1.6s ease-in-out .6s infinite; }
+
+        .wifi-1 {
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+
+        .wifi-2 {
+            animation: pulse 1.6s ease-in-out .3s infinite;
+        }
+
+        .wifi-3 {
+            animation: pulse 1.6s ease-in-out .6s infinite;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="card">
-    <div class="icon-wrap">
-        <!-- Animated wifi-off icon -->
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <!-- Slash line -->
-            <line x1="1" y1="1" x2="23" y2="23" stroke="var(--muted)" stroke-width="2"/>
-            <!-- Wifi arcs (animated) -->
-            <path class="wifi-3" d="M5 12.55a11 11 0 0 1 14.08 0"/>
-            <path class="wifi-2" d="M1.42 9a16 16 0 0 1 21.16 0"/>
-            <path class="wifi-1" d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-            <!-- Dot -->
-            <circle cx="12" cy="20" r="1" fill="var(--primary)"/>
-        </svg>
+    <div class="card">
+        <div class="icon-wrap">
+            <!-- Animated wifi-off icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Slash line -->
+                <line x1="1" y1="1" x2="23" y2="23" stroke="var(--muted)" stroke-width="2" />
+                <!-- Wifi arcs (animated) -->
+                <path class="wifi-3" d="M5 12.55a11 11 0 0 1 14.08 0" />
+                <path class="wifi-2" d="M1.42 9a16 16 0 0 1 21.16 0" />
+                <path class="wifi-1" d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                <!-- Dot -->
+                <circle cx="12" cy="20" r="1" fill="var(--primary)" />
+            </svg>
+        </div>
+
+        <h1>Tidak Ada Koneksi</h1>
+        <p>Anda sedang <strong>offline</strong>. SiMoU memerlukan koneksi internet untuk menampilkan data terbaru.</p>
+
+        <div class="divider"></div>
+
+        <ul class="tips">
+            <li>
+                <span class="dot"></span>
+                <span>Periksa koneksi Wi-Fi atau data seluler Anda, lalu coba lagi.</span>
+            </li>
+            <li>
+                <span class="dot"></span>
+                <span>Halaman yang pernah Anda buka sebelumnya mungkin masih tersedia dari cache browser.</span>
+            </li>
+            <li>
+                <span class="dot"></span>
+                <span>Jika masalah berlanjut, hubungi tim ICT RSUD Kilisuci.</span>
+            </li>
+        </ul>
+
+        <button class="btn-retry" onclick="window.location.reload()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            Coba Lagi
+        </button>
+
+        <div class="brand">
+            <strong>SiMoU</strong> | Sistem Informasi MoU &amp; MoA<br>
+            RSUD Kilisuci, Kota Kediri
+        </div>
     </div>
 
-    <h1>Tidak Ada Koneksi</h1>
-    <p>Anda sedang <strong>offline</strong>. SiMoU memerlukan koneksi internet untuk menampilkan data terbaru.</p>
-
-    <div class="divider"></div>
-
-    <ul class="tips">
-        <li>
-            <span class="dot"></span>
-            <span>Periksa koneksi Wi-Fi atau data seluler Anda, lalu coba lagi.</span>
-        </li>
-        <li>
-            <span class="dot"></span>
-            <span>Halaman yang pernah Anda buka sebelumnya mungkin masih tersedia dari cache browser.</span>
-        </li>
-        <li>
-            <span class="dot"></span>
-            <span>Jika masalah berlanjut, hubungi tim ICT RSUD Kilisuci.</span>
-        </li>
-    </ul>
-
-    <button class="btn-retry" onclick="window.location.reload()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-            <polyline points="23 4 23 10 17 10"/>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-        Coba Lagi
-    </button>
-
-    <div class="brand">
-        <strong>SiMoU</strong> — Sistem Informasi MoU &amp; MoA<br>
-        RSUD Kilisuci, Kota Kediri
-    </div>
-</div>
-
-<script>
-    // Otomatis reload saat koneksi kembali
-    window.addEventListener('online', () => {
-        window.location.reload();
-    });
-</script>
+    <script>
+        // Otomatis reload saat koneksi kembali
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
 </body>
+
 </html>

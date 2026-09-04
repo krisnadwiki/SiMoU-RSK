@@ -12,10 +12,10 @@ unset($_SESSION['_login_error']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login Admin — SiMoU RSUD Kilisuci">
+    <meta name="description" content="Login Admin SiMoU RSUD Kilisuci">
     <meta name="csrf-token" content="<?= e($csrfToken) ?>">
     <meta name="robots" content="noindex">
-    <title>Login — <?= e(APP_NAME) ?></title>
+    <title>Login <?= e(APP_NAME) ?></title>
 
     <link rel="icon" type="image/png" href="<?= APP_URL ?>/assets/image/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">

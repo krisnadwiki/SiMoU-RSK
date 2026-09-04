@@ -36,7 +36,7 @@ require __DIR__ . '/../../layouts/header.php';
         <?php if (!empty($mou['file_path'])): ?>
         <div style="margin-top:12px;">
             <a href="javascript:void(0)"
-               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','Dokumen Utama — <?= e(addslashes($mou['mou_number'])) ?>')"
+               onclick="openPdfModal('<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document','<?= APP_URL ?>/admin/mou/<?= $mou['id'] ?>/document?download=1','<?= e(addslashes($mou['mou_number'])) ?>')"
                class="btn btn-outline btn-sm" style="font-size:.78rem; border-color:var(--primary); color:var(--primary);">
                 <i class="fa-solid fa-file-pdf" style="color:var(--danger);"></i> Lihat Berkas Dokumen Utama Saat Ini
             </a>
